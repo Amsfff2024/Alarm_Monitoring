@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HYGIENE RAN</title>
+<title>RAN HYGIENE</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
@@ -555,7 +555,7 @@ input:checked + .slider:before {
 
 <div class="wrapper">
 
-  <!-- SIDEBAR -->
+   <!-- SIDEBAR -->
   <div class="sidebar" id="sidebar">
     <div class="title">
       <i class="bi bi-speedometer2"></i>
@@ -563,9 +563,50 @@ input:checked + .slider:before {
     </div>
 
     <div class="sidebar-nav">
+      <!-- Ikon untuk SUMMARY: bi-clipboard-data (data terangkum) -->
       <a class="active" onclick="loadPage(this,'alarm.html')">
-        <i class="bi bi-bell-fill"></i>
+        <i class="bi bi-clipboard-data-fill"></i>
         <span>ALARM</span>
+      </a>
+
+      <!-- Ikon untuk VSWR: bi-bar-chart-line (grafik yang merefleksikan gelombang) -->
+      <a onclick="loadPage(this,'vswr.html')">
+        <i class="bi bi-bar-chart-line-fill"></i>
+        <span>VSWR</span>
+      </a>
+
+      <!-- Ikon untuk RTWP: bi-soundwave (gelombang suara / frekuensi) -->
+      <a onclick="loadPage(this,'rtwp.html')">
+        <i class="bi bi-soundwave"></i>
+        <span>RTWP</span>
+      </a>
+
+      <!-- Ikon untuk SLEEPING CELL: bi-moon-stars (bulan & bintang - sel tertidur) -->
+      <a onclick="loadPage(this,'sleepingcell.html')">
+        <i class="bi bi-moon-stars-fill"></i>
+        <span>SLEEPING CELL</span>
+      </a>
+
+      <!-- Ikon untuk QPSK: bi-broadcast (sinyal / modulasi) -->
+      <a onclick="loadPage(this,'qpsk.html')">
+        <i class="bi bi-broadcast-pin"></i>
+        <span>QPSK</span>
+      </a>
+
+      <!-- Ikon untuk RANK2: bi-layers-half (dua lapisan - rank 2) -->
+      <a onclick="loadPage(this,'rank2.html')">
+        <i class="bi bi-layers-half"></i>
+        <span>RANK2</span>
+      </a>
+
+       <a onclick="loadPage(this,'fso.html')">
+        <i class="bi bi-speedometer2"></i>
+        <span>FSO</span>
+      </a>
+
+             <a onclick="loadPage(this,'kpi.html')">
+        <i class="bi bi-graph-up-arrow"></i>
+        <span>KPI</span>
       </a>
       
     </div>
@@ -584,7 +625,7 @@ input:checked + .slider:before {
           <i class="bi bi-list"></i>
         </button>
         <div>
-          <h1 id="pageTitle">VIP ALARM</h1>
+          <h1 id="pageTitle">RAN HYGIENE SUMMARY</h1>
           <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px; font-weight: 400;">
             <span class="status-indicator"></span> Real-time monitoring active
           </div>

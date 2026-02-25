@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALARM PIC Dashboard</title>
+    <title>Alarm PIC Dashboard</title>
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -440,13 +440,13 @@
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="mb-1"><i class="fas fa-tasks me-2"></i>ALARM PIC Dashboard</h1>
-                    <p class="small mb-0 opacity-75">Issues Handled by ALARM Team</p>
+                    <h1 class="mb-1"><i class="fas fa-tasks me-2"></i>Alarm PIC Dashboard</h1>
+                    <p class="small mb-0 opacity-75">Issues Handled by Alarm Team</p>
                 </div>
                 <div class="text-end">
                     <div class="small mb-1"><i class="fas fa-clock me-1"></i> <span id="currentTime">Loading...</span></div>
                     <span class="badge bg-danger" id="dashboardStatus">
-                        <i class="fas fa-circle me-1"></i> Loading ALARM Data...
+                        <i class="fas fa-circle me-1"></i> Loading Alarm Data...
                     </span>
                 </div>
             </div>
@@ -457,13 +457,13 @@
     <div class="container-fluid py-4">
         <!-- Filter Indicator -->
         <div class="filter-indicator">
-            <i class="fas fa-filter"></i> Active Filter: <strong>PIC = ALARM (Simulated)</strong>
-            <span class="ms-3 badge bg-white text-dark" id="ALARMCountBadge">Loading...</span>
+            <i class="fas fa-filter"></i> Active Filter: <strong>PIC = Alarm (Simulated)</strong>
+            <span class="ms-3 badge bg-white text-dark" id="alarmCountBadge">Loading...</span>
         </div>
         
         <!-- Dashboard Title -->
         <div class="dashboard-title">
-            <i class="fas fa-chart-line me-2"></i>ALARM Issues Overview
+            <i class="fas fa-chart-line me-2"></i>Alarm Issues Overview
         </div>
         
         <!-- KPI Summary Row -->
@@ -480,7 +480,7 @@
                             <i class="fas fa-tasks fa-2x text-primary opacity-50"></i>
                         </div>
                     </div>
-                    <div class="small text-muted mt-2">All ALARM issues</div>
+                    <div class="small text-muted mt-2">All alarm issues</div>
                 </div>
             </div>
             <!-- UNIQUE SITES -->
@@ -510,7 +510,7 @@
                             <i class="fas fa-exclamation-circle fa-2x text-danger opacity-50"></i>
                         </div>
                     </div>
-                    <div class="small text-muted mt-2">ALARM issues pending</div>
+                    <div class="small text-muted mt-2">Alarm issues pending</div>
                 </div>
             </div>
             <!-- CLOSED ALARM -->
@@ -525,7 +525,7 @@
                             <i class="fas fa-check-circle fa-2x text-success opacity-50"></i>
                         </div>
                     </div>
-                    <div class="small text-muted mt-2">Resolved ALARM issues</div>
+                    <div class="small text-muted mt-2">Resolved alarm issues</div>
                 </div>
             </div>
             <!-- HIGH PRIORITY -->
@@ -540,7 +540,7 @@
                             <i class="fas fa-flag fa-2x text-warning opacity-50"></i>
                         </div>
                     </div>
-                    <div class="small text-muted mt-2">P1/P2 ALARM issues</div>
+                    <div class="small text-muted mt-2">P1/P2 alarm issues</div>
                 </div>
             </div>
             <!-- AGING > 1 MONTH -->
@@ -555,7 +555,7 @@
                             <i class="fas fa-calendar-times fa-2x text-info opacity-50"></i>
                         </div>
                     </div>
-                    <div class="small text-muted mt-2">ALARM >30 days old</div>
+                    <div class="small text-muted mt-2">Alarm >30 days old</div>
                 </div>
             </div>
         </div>
@@ -683,7 +683,7 @@
         <div class="row mb-4">
             <div class="col-lg-4 mb-4">
                 <div class="chart-container">
-                    <h6 class="chart-title"><i class="fas fa-chart-pie"></i>ALARM Status Distribution</h6>
+                    <h6 class="chart-title"><i class="fas fa-chart-pie"></i>Alarm Status Distribution</h6>
                     <div style="height: 250px; position: relative;">
                         <canvas id="statusChart"></canvas>
                     </div>
@@ -691,7 +691,7 @@
             </div>
             <div class="col-lg-4 mb-4">
                 <div class="chart-container">
-                    <h6 class="chart-title"><i class="fas fa-chart-bar"></i>ALARM Priority Distribution</h6>
+                    <h6 class="chart-title"><i class="fas fa-chart-bar"></i>Alarm Priority Distribution</h6>
                     <div style="height: 250px; position: relative;">
                         <canvas id="priorityChart"></canvas>
                     </div>
@@ -699,7 +699,7 @@
             </div>
             <div class="col-lg-4 mb-4">
                 <div class="chart-container">
-                    <h6 class="chart-title"><i class="fas fa-chart-line"></i>ALARM by Region</h6>
+                    <h6 class="chart-title"><i class="fas fa-chart-line"></i>Alarm by Region</h6>
                     <div style="height: 250px; position: relative;">
                         <canvas id="regionChart"></canvas>
                     </div>
@@ -711,7 +711,7 @@
         <div class="row mb-4">
             <div class="col-lg-4 mb-4">
                 <div class="chart-container">
-                    <h6 class="chart-title"><i class="fas fa-industry"></i>ALARM by Vendor</h6>
+                    <h6 class="chart-title"><i class="fas fa-industry"></i>Alarm by Vendor</h6>
                     <div style="height: 250px; position: relative;">
                         <canvas id="vendorChart"></canvas>
                     </div>
@@ -737,10 +737,10 @@
 
         <!-- Summary Tables -->
         <div class="row mb-4">
-            <!-- Top Sites with ALARM Issues -->
+            <!-- Top Sites with Alarm Issues -->
             <div class="col-lg-4 mb-4">
                 <div class="chart-container">
-                    <h6 class="chart-title"><i class="fas fa-building"></i>Top Sites with ALARM Issues</h6>
+                    <h6 class="chart-title"><i class="fas fa-building"></i>Top Sites with Alarm Issues</h6>
                     <div class="table-responsive" style="max-height: 300px;">
                         <table class="table table-sm table-hover">
                             <thead>
@@ -752,17 +752,17 @@
                                 </tr>
                             </thead>
                             <tbody id="topSitesBody">
-                                <tr><td colspan="4" class="text-center py-3">Loading ALARM data...</td></tr>
+                                <tr><td colspan="4" class="text-center py-3">Loading Alarm data...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
             
-            <!-- Aging Analysis for ALARM -->
+            <!-- Aging Analysis for Alarm -->
             <div class="col-lg-4 mb-4">
                 <div class="chart-container">
-                    <h6 class="chart-title"><i class="fas fa-calendar-alt"></i>Oldest Open ALARM Issues</h6>
+                    <h6 class="chart-title"><i class="fas fa-calendar-alt"></i>Oldest Open Alarm Issues</h6>
                     <div class="table-responsive" style="max-height: 300px;">
                         <table class="table table-sm table-hover">
                             <thead>
@@ -774,14 +774,14 @@
                                 </tr>
                             </thead>
                             <tbody id="agingIssuesBody">
-                                <tr><td colspan="4" class="text-center py-3">Loading ALARM data...</td></tr>
+                                <tr><td colspan="4" class="text-center py-3">Loading Alarm data...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
             
-            <!-- Top Alarm Categories for ALARM -->
+            <!-- Top Alarm Categories for Alarm -->
             <div class="col-lg-4 mb-4">
                 <div class="chart-container">
                     <h6 class="chart-title"><i class="fas fa-chart-pie"></i>Top Alarm Names</h6>
@@ -795,7 +795,7 @@
                                 </tr>
                             </thead>
                             <tbody id="topAlarmsBody">
-                                <tr><td colspan="3" class="text-center py-3">Loading ALARM data...</td></tr>
+                                <tr><td colspan="3" class="text-center py-3">Loading Alarm data...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -807,7 +807,7 @@
         <div class="row mb-4">
             <div class="col-12">
                 <div class="chart-container">
-                    <h6 class="chart-title"><i class="fas fa-map-marked-alt"></i>Region Performance Summary (ALARM)</h6>
+                    <h6 class="chart-title"><i class="fas fa-map-marked-alt"></i>Region Performance Summary (Alarm)</h6>
                     <div class="table-responsive">
                         <table class="table table-sm table-hover">
                             <thead>
@@ -822,7 +822,7 @@
                                 </tr>
                             </thead>
                             <tbody id="regionSummaryBody">
-                                <tr><td colspan="7" class="text-center py-3">Loading ALARM data...</td></tr>
+                                <tr><td colspan="7" class="text-center py-3">Loading Alarm data...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -830,13 +830,13 @@
             </div>
         </div>
 
-        <!-- Detailed ALARM Issues Table (Hidden by default) -->
+        <!-- Detailed Alarm Issues Table (Hidden by default) -->
         <div class="row">
             <div class="col-12">
                 <div class="main-table-container" id="detailedTableContainer">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h6 class="mb-0" style="font-family: var(--font-plus-jakarta); font-weight: 700; font-size: 14px;">
-                            <i class="fas fa-table me-2"></i>Detailed ALARM Issues
+                            <i class="fas fa-table me-2"></i>Detailed Alarm Issues
                         </h6>
                         <div>
                             <span class="info-badge me-2" id="tableCountBadge">Showing 0 issues</span>
@@ -893,13 +893,13 @@
                 <div class="text-center small text-muted">
                     <p class="mb-1" style="font-family: var(--font-inter);">
                         <i class="fas fa-database me-1"></i> Data Source: Google Sheets | 
-                        <i class="fas fa-filter me-1 ms-3"></i> Filter: PIC = ALARM (Simulated) |
+                        <i class="fas fa-filter me-1 ms-3"></i> Filter: PIC = Alarm (Simulated) |
                         <i class="fas fa-clock me-1 ms-3"></i> Last Updated: <span id="lastUpdatedTime">-</span> |
-                        <i class="fas fa-info-circle me-1 ms-3"></i> Total ALARM Records: <span id="totalRecords">0</span>
+                        <i class="fas fa-info-circle me-1 ms-3"></i> Total Alarm Records: <span id="totalRecords">0</span>
                     </p>
                     <p class="mb-0" style="font-family: var(--font-inter);">
                         <button class="btn btn-link btn-sm text-decoration-none" onclick="fetchCSVData()">
-                            <i class="fas fa-redo me-1"></i> Refresh ALARM Data
+                            <i class="fas fa-redo me-1"></i> Refresh Alarm Data
                         </button>
                         <button class="btn btn-link btn-sm text-decoration-none" onclick="toggleAutoRefresh()" id="autoRefreshToggle">
                             <i class="fas fa-sync me-1"></i> Auto-Refresh: <span id="autoRefreshStatus">ON</span>
@@ -919,8 +919,8 @@
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHmL8yt33aPtILq2x9bw7miJh38cz5TjyT_r1d9ERpaMyE7OOL9DsUGQcZcbINhD1axc8kYhvc5zJP/pub?gid=0&single=true&output=csv";
 
         // ==================== VARIABEL GLOBAL ====================
-        let allALARMData = [];
-        let filteredALARMData = [];
+        let allAlarmData = [];
+        let filteredAlarmData = [];
         let currentSort = { column: 'aging', direction: 'desc' };
         let statusChart, priorityChart, regionChart, vendorChart, alarmChart, agingChart;
         let autoRefreshInterval = null;
@@ -929,7 +929,7 @@
 
         // ==================== FUNGSI INISIALISASI ====================
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('ALARM PIC Dashboard initializing...');
+            console.log('Alarm PIC Dashboard initializing...');
             updateCurrentTime();
             setInterval(updateCurrentTime, 1000);
             
@@ -956,7 +956,7 @@
                     if (results.data && results.data.length > 0) {
                         processData(results.data);
                         debugData();
-                        updateDashboardStatus('success', `Data loaded (${allALARMData.length} records)`);
+                        updateDashboardStatus('success', `Data loaded (${allAlarmData.length} records)`);
                     } else {
                         console.warn('No data found in CSV');
                         showError('No data found in the CSV file.');
@@ -965,8 +965,8 @@
                     showLoading(false);
                     updateLastUpdatedTime();
                     
-                    // Update ALARM count badge
-                    document.getElementById('ALARMCountBadge').textContent = `${allALARMData.length} Issues`;
+                    // Update alarm count badge
+                    document.getElementById('alarmCountBadge').textContent = `${allAlarmData.length} Issues`;
                     
                     // Hide search result info and detailed table initially
                     document.getElementById('searchResultInfo').style.display = 'none';
@@ -982,7 +982,7 @@
         }
 
         function processData(rawData) {
-            allALARMData = [];
+            allAlarmData = [];
             const regions = new Set();
             const alarmNames = new Set();
             const vendors = new Set();
@@ -1043,13 +1043,13 @@
                         isCritical: aging > 60
                     };
                     
-                    allALARMData.push(processedRow);
+                    allAlarmData.push(processedRow);
                 } catch (error) {
                     console.warn('Error processing row:', error);
                 }
             });
             
-            console.log(`Processed ${allALARMData.length} records`);
+            console.log(`Processed ${allAlarmData.length} records`);
             
             // Update filter options
             updateFilterOptions('filterRegion', Array.from(regions));
@@ -1136,21 +1136,21 @@
 
         function debugData() {
             console.log('=== ALARM DATA DEBUG ===');
-            console.log('Total records:', allALARMData.length);
-            if (allALARMData.length > 0) {
-                console.log('Sample records (first 3):', allALARMData.slice(0, 3));
+            console.log('Total records:', allAlarmData.length);
+            if (allAlarmData.length > 0) {
+                console.log('Sample records (first 3):', allAlarmData.slice(0, 3));
                 console.log('Status distribution:', {
-                    Open: allALARMData.filter(d => d.status === 'Open').length,
-                    Closed: allALARMData.filter(d => d.status === 'Closed').length
+                    Open: allAlarmData.filter(d => d.status === 'Open').length,
+                    Closed: allAlarmData.filter(d => d.status === 'Closed').length
                 });
                 console.log('Priority distribution:', {
-                    P1: allALARMData.filter(d => d.priority === 'P1').length,
-                    P2: allALARMData.filter(d => d.priority === 'P2').length,
-                    P3: allALARMData.filter(d => d.priority === 'P3').length,
-                    P4: allALARMData.filter(d => d.priority === 'P4').length
+                    P1: allAlarmData.filter(d => d.priority === 'P1').length,
+                    P2: allAlarmData.filter(d => d.priority === 'P2').length,
+                    P3: allAlarmData.filter(d => d.priority === 'P3').length,
+                    P4: allAlarmData.filter(d => d.priority === 'P4').length
                 });
-                console.log('All regions:', [...new Set(allALARMData.map(d => d.region))]);
-                console.log('All vendors:', [...new Set(allALARMData.map(d => d.vendor))]);
+                console.log('All regions:', [...new Set(allAlarmData.map(d => d.region))]);
+                console.log('All vendors:', [...new Set(allAlarmData.map(d => d.vendor))]);
             }
             console.log('=== END ALARM DEBUG ===');
         }
@@ -1165,7 +1165,7 @@
             const filterVendor = document.getElementById('filterVendor').value;
             const filterSiteType = document.getElementById('filterSiteType').value;
             
-            filteredALARMData = allALARMData.filter(issue => {
+            filteredAlarmData = allAlarmData.filter(issue => {
                 const siteIdMatch = !searchSiteId || 
                     issue.siteId.toLowerCase().includes(searchSiteId);
                 
@@ -1220,7 +1220,7 @@
             if (filterSiteType) searchDescription.push(`Site Type: ${filterSiteType}`);
             
             if (searchDescription.length > 0) {
-                searchResultTitle.textContent = `Search Results (${filteredALARMData.length} issues found)`;
+                searchResultTitle.textContent = `Search Results (${filteredAlarmData.length} issues found)`;
                 searchResultText.textContent = `Filters applied: ${searchDescription.join(', ')}`;
                 searchResultInfo.style.display = 'block';
                 
@@ -1259,15 +1259,15 @@
 
         // ==================== FUNGSI UPDATE UI ====================
         function updateSummaryKPIs() {
-            const totalIssues = allALARMData.length;
+            const totalIssues = allAlarmData.length;
             
             // Calculate unique sites
-            const uniqueSites = new Set(allALARMData.map(issue => issue.siteId)).size;
+            const uniqueSites = new Set(allAlarmData.map(issue => issue.siteId)).size;
             
-            const openIssues = allALARMData.filter(issue => issue.status === 'Open').length;
-            const closedIssues = allALARMData.filter(issue => issue.status === 'Closed').length;
-            const highPriorityIssues = allALARMData.filter(issue => issue.priority === 'P1' || issue.priority === 'P2').length;
-            const agingIssues = allALARMData.filter(issue => issue.aging > 30).length;
+            const openIssues = allAlarmData.filter(issue => issue.status === 'Open').length;
+            const closedIssues = allAlarmData.filter(issue => issue.status === 'Closed').length;
+            const highPriorityIssues = allAlarmData.filter(issue => issue.priority === 'P1' || issue.priority === 'P2').length;
+            const agingIssues = allAlarmData.filter(issue => issue.aging > 30).length;
             
             document.getElementById('kpiTotalIssues').textContent = totalIssues.toLocaleString();
             document.getElementById('kpiUniqueSites').textContent = uniqueSites.toLocaleString();
@@ -1283,8 +1283,8 @@
         function updateCharts() {
             // Update Status Chart
             const statusCounts = {
-                'Open': filteredALARMData.filter(issue => issue.status === 'Open').length,
-                'Closed': filteredALARMData.filter(issue => issue.status === 'Closed').length
+                'Open': filteredAlarmData.filter(issue => issue.status === 'Open').length,
+                'Closed': filteredAlarmData.filter(issue => issue.status === 'Closed').length
             };
             
             if (statusChart) statusChart.destroy();
@@ -1350,10 +1350,10 @@
             
             // Update Priority Chart
             const priorityCounts = {
-                'P1': filteredALARMData.filter(issue => issue.priority === 'P1').length,
-                'P2': filteredALARMData.filter(issue => issue.priority === 'P2').length,
-                'P3': filteredALARMData.filter(issue => issue.priority === 'P3').length,
-                'P4': filteredALARMData.filter(issue => issue.priority === 'P4').length
+                'P1': filteredAlarmData.filter(issue => issue.priority === 'P1').length,
+                'P2': filteredAlarmData.filter(issue => issue.priority === 'P2').length,
+                'P3': filteredAlarmData.filter(issue => issue.priority === 'P3').length,
+                'P4': filteredAlarmData.filter(issue => issue.priority === 'P4').length
             };
             
             if (priorityChart) priorityChart.destroy();
@@ -1421,7 +1421,7 @@
             
             // Update Region Chart
             const regionCounts = {};
-            filteredALARMData.forEach(issue => {
+            filteredAlarmData.forEach(issue => {
                 const region = issue.region || 'Unknown';
                 regionCounts[region] = (regionCounts[region] || 0) + 1;
             });
@@ -1509,7 +1509,7 @@
             
             // Update Vendor Chart
             const vendorCounts = {};
-            filteredALARMData.forEach(issue => {
+            filteredAlarmData.forEach(issue => {
                 const vendor = issue.vendor || 'Unknown';
                 vendorCounts[vendor] = (vendorCounts[vendor] || 0) + 1;
             });
@@ -1582,7 +1582,7 @@
             
             // Update Alarm Chart
             const alarmCounts = {};
-            filteredALARMData.forEach(issue => {
+            filteredAlarmData.forEach(issue => {
                 const alarm = issue.alarmName || 'Unknown';
                 alarmCounts[alarm] = (alarmCounts[alarm] || 0) + 1;
             });
@@ -1666,11 +1666,11 @@
             
             // Update Aging Distribution Chart
             const agingRanges = {
-                '0-7 days': filteredALARMData.filter(issue => issue.aging <= 7).length,
-                '8-14 days': filteredALARMData.filter(issue => issue.aging > 7 && issue.aging <= 14).length,
-                '15-30 days': filteredALARMData.filter(issue => issue.aging > 14 && issue.aging <= 30).length,
-                '31-60 days': filteredALARMData.filter(issue => issue.aging > 30 && issue.aging <= 60).length,
-                '>60 days': filteredALARMData.filter(issue => issue.aging > 60).length
+                '0-7 days': filteredAlarmData.filter(issue => issue.aging <= 7).length,
+                '8-14 days': filteredAlarmData.filter(issue => issue.aging > 7 && issue.aging <= 14).length,
+                '15-30 days': filteredAlarmData.filter(issue => issue.aging > 14 && issue.aging <= 30).length,
+                '31-60 days': filteredAlarmData.filter(issue => issue.aging > 30 && issue.aging <= 60).length,
+                '>60 days': filteredAlarmData.filter(issue => issue.aging > 60).length
             };
             
             if (agingChart) agingChart.destroy();
@@ -1790,14 +1790,14 @@
         function updateTopSitesTable() {
             const tbody = document.getElementById('topSitesBody');
             
-            if (filteredALARMData.length === 0) {
+            if (filteredAlarmData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">No issues found</td></tr>';
                 return;
             }
             
             // Group by site ID
             const siteStats = {};
-            filteredALARMData.forEach(issue => {
+            filteredAlarmData.forEach(issue => {
                 if (!siteStats[issue.siteId]) {
                     siteStats[issue.siteId] = {
                         siteId: issue.siteId,
@@ -1839,13 +1839,13 @@
         function updateAgingIssuesTable() {
             const tbody = document.getElementById('agingIssuesBody');
             
-            if (filteredALARMData.length === 0) {
+            if (filteredAlarmData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">No issues found</td></tr>';
                 return;
             }
             
             // Filter open issues and sort by aging (descending)
-            const agingIssues = filteredALARMData
+            const agingIssues = filteredAlarmData
                 .filter(issue => issue.status === 'Open')
                 .sort((a, b) => b.aging - a.aging)
                 .slice(0, 10);
@@ -1877,14 +1877,14 @@
         function updateTopAlarmsTable() {
             const tbody = document.getElementById('topAlarmsBody');
             
-            if (filteredALARMData.length === 0) {
+            if (filteredAlarmData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="3" class="text-center py-3">No issues found</td></tr>';
                 return;
             }
             
             // Group by alarm name
             const alarmStats = {};
-            filteredALARMData.forEach(issue => {
+            filteredAlarmData.forEach(issue => {
                 const alarm = issue.alarmName || 'Unknown';
                 if (!alarmStats[alarm]) {
                     alarmStats[alarm] = {
@@ -1896,7 +1896,7 @@
             });
             
             // Convert to array, calculate percentage, and sort by total issues
-            const totalIssues = filteredALARMData.length;
+            const totalIssues = filteredAlarmData.length;
             const alarmArray = Object.values(alarmStats)
                 .map(alarm => ({
                     ...alarm,
@@ -1921,14 +1921,14 @@
         function updateRegionSummaryTable() {
             const tbody = document.getElementById('regionSummaryBody');
             
-            if (filteredALARMData.length === 0) {
+            if (filteredAlarmData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3">No issues found</td></tr>';
                 return;
             }
             
             // Group by region
             const regionStats = {};
-            filteredALARMData.forEach(issue => {
+            filteredAlarmData.forEach(issue => {
                 const region = issue.region || 'Unknown';
                 if (!regionStats[region]) {
                     regionStats[region] = {
@@ -2001,7 +2001,7 @@
             const tbody = document.getElementById('detailedIssuesTableBody');
             const countBadge = document.getElementById('tableCountBadge');
             
-            if (filteredALARMData.length === 0) {
+            if (filteredAlarmData.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="12" class="text-center py-5">
@@ -2014,7 +2014,7 @@
                 return;
             }
             
-            let sortedData = [...filteredALARMData];
+            let sortedData = [...filteredAlarmData];
             
             // Apply sorting
             sortedData.sort((a, b) => {
@@ -2086,7 +2086,7 @@
                 tbody.appendChild(row);
             });
             
-            countBadge.textContent = `Showing ${filteredALARMData.length} issues`;
+            countBadge.textContent = `Showing ${filteredAlarmData.length} issues`;
         }
 
         function sortTable(column) {
@@ -2102,7 +2102,7 @@
 
         // ==================== FUNGSI UTILITAS ====================
         function exportToCSV() {
-            if (filteredALARMData.length === 0) {
+            if (filteredAlarmData.length === 0) {
                 alert('No data to export!');
                 return;
             }
@@ -2112,7 +2112,7 @@
             
             const csvData = [
                 headers.join(','),
-                ...filteredALARMData.map(issue => [
+                ...filteredAlarmData.map(issue => [
                     issue.siteId,
                     `"${(issue.alarmName || '').replace(/"/g, '""')}"`,
                     issue.priority,
@@ -2133,14 +2133,14 @@
             const url = URL.createObjectURL(blob);
             
             link.setAttribute('href', url);
-            link.setAttribute('download', `ALARM_issues_${new Date().toISOString().slice(0,10)}.csv`);
+            link.setAttribute('download', `alarm_issues_${new Date().toISOString().slice(0,10)}.csv`);
             link.style.visibility = 'hidden';
             
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             
-            alert(`Exported ${filteredALARMData.length} issues to CSV`);
+            alert(`Exported ${filteredAlarmData.length} issues to CSV`);
         }
 
         function updateCurrentTime() {

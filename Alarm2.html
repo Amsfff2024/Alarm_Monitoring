@@ -141,12 +141,22 @@
             background: #f8fafc;
         }
         
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
         /* Table */
         .table-container {
             background: white;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
         }
         
         .table-header {
@@ -225,6 +235,11 @@
             color: #16a34a;
         }
         
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
         /* Status bar */
         .status-bar {
             display: flex;
@@ -290,6 +305,10 @@
             text-align: right;
         }
         
+        .text-center {
+            text-align: center;
+        }
+        
         .text-muted {
             color: #64748b;
         }
@@ -332,6 +351,44 @@
             min-width: 120px;
             white-space: nowrap;
             font-family: monospace;
+        }
+        
+        /* Site search result */
+        .site-result-header {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .site-badge {
+            background: #3b82f6;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .sub-table {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+        }
+        
+        .sub-table table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .sub-table th {
+            background: #e2e8f0;
+            font-size: 0.7rem;
         }
     </style>
 </head>
@@ -376,7 +433,6 @@
                 <div class="kpi-label">Unique Sites</div>
                 <div class="kpi-value" id="uniqueSites">0</div>
             </div>
-            <!-- Open Issues card has been deleted -->
             <div class="kpi-item">
                 <div class="kpi-label">Unique Tickets</div>
                 <div class="kpi-value" id="totalTickets">0</div>
@@ -386,9 +442,8 @@
         <!-- Filter Bar -->
         <div class="filter-bar">
             <div class="filter-item">
-                <input type="text" id="searchSite" placeholder="🔍 Search Site ID" onkeyup="filterData()">
+                <input type="text" id="searchSite" placeholder="🔍 Search Site ID" onkeyup="filterData()" onkeypress="handleEnterKey(event)">
             </div>
-            <!-- Status filter has been deleted -->
             <div class="filter-item">
                 <select id="filterPriority" onchange="filterData()">
                     <option value="">All Priority</option>
@@ -404,12 +459,33 @@
                 </select>
             </div>
             <div class="filter-item">
+                <button class="btn btn-success w-100" onclick="searchSiteDetails()">
+                    🔍 Search Site
+                </button>
+            </div>
+            <div class="filter-item">
                 <button class="btn w-100" onclick="clearFilters()">Clear Filters</button>
             </div>
         </div>
 
         <!-- Alert Info (hidden by default) -->
         <div id="filterAlert" class="alert alert-info hidden"></div>
+
+        <!-- Site Search Result (hidden by default) -->
+        <div id="siteResultContainer" class="card hidden">
+            <div class="site-result-header">
+                <div>
+                    <span class="site-badge" id="searchedSite">-</span>
+                    <span class="text-muted" style="margin-left: 12px;" id="siteResultSummary"></span>
+                </div>
+                <button class="btn btn-outline" onclick="closeSiteResult()">
+                    ✕ Close
+                </button>
+            </div>
+            
+            <!-- Tabel grouping per date -->
+            <div id="siteResultTables"></div>
+        </div>
 
         <!-- Top Sites Summary -->
         <div class="card">
@@ -424,10 +500,11 @@
                             <th>New_Region</th>
                             <th>MC Cluster</th>
                             <th class="text-right">Total</th>
+                            <th class="text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody id="topSitesTable">
-                        <tr><td colspan="6" class="text-muted loading">Loading...</td></tr>
+                        <tr><td colspan="7" class="text-muted loading">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -480,6 +557,13 @@
             setInterval(updateTime, 1000);
             loadData();
         });
+
+        // Handle Enter key on search input
+        function handleEnterKey(event) {
+            if (event.key === 'Enter') {
+                searchSiteDetails();
+            }
+        }
 
         // Load data dengan fetch sederhana
         async function loadData() {
@@ -712,7 +796,132 @@
             document.getElementById('filterRegion').value = '';
             filteredData = [...allData];
             document.getElementById('filterAlert').classList.add('hidden');
+            closeSiteResult(); // Tutup hasil pencarian site
             updateAll();
+        }
+
+        // Fungsi baru: Search Site Details
+        function searchSiteDetails() {
+            const siteId = document.getElementById('searchSite').value.trim();
+            if (!siteId) {
+                alert('Masukkan Site ID terlebih dahulu');
+                return;
+            }
+            
+            // Filter data untuk site tersebut
+            const siteData = allData.filter(item => 
+                item.siteId.toLowerCase().includes(siteId.toLowerCase())
+            );
+            
+            if (siteData.length === 0) {
+                alert(`Tidak ada data untuk Site ID: ${siteId}`);
+                closeSiteResult();
+                return;
+            }
+            
+            // Tampilkan container hasil
+            const container = document.getElementById('siteResultContainer');
+            container.classList.remove('hidden');
+            
+            // Update header
+            document.getElementById('searchedSite').textContent = siteId.toUpperCase();
+            document.getElementById('siteResultSummary').textContent = 
+                `Found ${siteData.length} issues`;
+            
+            // Group by date
+            const groupedByDate = {};
+            siteData.forEach(item => {
+                const date = item.date || 'Unknown Date';
+                if (!groupedByDate[date]) {
+                    groupedByDate[date] = {
+                        date: date,
+                        alarms: {},
+                        total: 0
+                    };
+                }
+                
+                // Group by alarm name dalam tanggal yang sama
+                const alarmName = item.alarmName;
+                if (!groupedByDate[date].alarms[alarmName]) {
+                    groupedByDate[date].alarms[alarmName] = {
+                        name: alarmName,
+                        count: 0,
+                        priorities: new Set(),
+                        tickets: new Set()
+                    };
+                }
+                
+                groupedByDate[date].alarms[alarmName].count++;
+                groupedByDate[date].total++;
+                groupedByDate[date].alarms[alarmName].priorities.add(item.priority);
+                if (item.hasTicket) {
+                    groupedByDate[date].alarms[alarmName].tickets.add(item.ticketId);
+                }
+            });
+            
+            // Sort dates (descending - newest first)
+            const sortedDates = Object.keys(groupedByDate).sort((a, b) => {
+                if (a === 'Unknown Date') return 1;
+                if (b === 'Unknown Date') return -1;
+                return b.localeCompare(a);
+            });
+            
+            // Generate HTML tables
+            let html = '';
+            sortedDates.forEach(date => {
+                const dateGroup = groupedByDate[date];
+                const alarmList = Object.values(dateGroup.alarms).sort((a, b) => b.count - a.count);
+                
+                html += `
+                    <div class="sub-table mb-2">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 0 8px;">
+                            <h4 style="font-size: 0.9rem; color: #2563eb;">
+                                📅 ${date} 
+                                <span class="badge badge-info" style="margin-left: 8px;">Total: ${dateGroup.total}</span>
+                            </h4>
+                        </div>
+                        <table style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60%;">Alarm Name</th>
+                                    <th style="width: 15%;">Count</th>
+                                    <th style="width: 15%;">Priority</th>
+                                    <th style="width: 10%;">Tickets</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                alarmList.forEach(alarm => {
+                    const priorities = Array.from(alarm.priorities).join(', ');
+                    const ticketCount = alarm.tickets.size;
+                    
+                    html += `
+                        <tr>
+                            <td title="${alarm.name}">${alarm.name.substring(0, 50)}${alarm.name.length > 50 ? '...' : ''}</td>
+                            <td><span class="badge badge-p3">${alarm.count}</span></td>
+                            <td>${priorities}</td>
+                            <td>${ticketCount > 0 ? 
+                                `<span class="badge badge-success" style="background: #10b981; color: white;">${ticketCount}</span>` : 
+                                '<span class="text-muted">-</span>'}
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('siteResultTables').innerHTML = html;
+        }
+
+        function closeSiteResult() {
+            document.getElementById('siteResultContainer').classList.add('hidden');
+            document.getElementById('siteResultTables').innerHTML = '';
         }
 
         // Update all UI
@@ -735,7 +944,7 @@
         function updateTopSites() {
             const tbody = document.getElementById('topSitesTable');
             if (filteredData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-muted">No data</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="text-muted">No data</td></tr>';
                 return;
             }
             
@@ -768,8 +977,19 @@
                     <td>${site.newRegion}</td>
                     <td>${site.mcCluster}</td>
                     <td class="text-right">${site.total}</td>
+                    <td class="text-center">
+                        <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.7rem;" 
+                                onclick="quickSearch('${site.siteId}')">
+                            🔍 Detail
+                        </button>
+                    </td>
                 </tr>
             `).join('');
+        }
+
+        function quickSearch(siteId) {
+            document.getElementById('searchSite').value = siteId;
+            searchSiteDetails();
         }
 
         function updateMainTable() {

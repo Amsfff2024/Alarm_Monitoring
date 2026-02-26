@@ -329,8 +329,9 @@
         
         /* Column width for date */
         .date-column {
-            min-width: 100px;
+            min-width: 120px;
             white-space: nowrap;
+            font-family: monospace;
         }
     </style>
 </head>
@@ -496,6 +497,49 @@
             }
         }
 
+        // Fungsi untuk memformat tanggal dengan berbagai format
+        function formatDate(dateStr) {
+            if (!dateStr || dateStr === '') return '-';
+            
+            // Hapus tanda kutip dan trim
+            dateStr = dateStr.replace(/"/g, '').trim();
+            
+            // Coba deteksi format tanggal
+            // Format: MM/DD/YYYY atau DD/MM/YYYY atau YYYY-MM-DD
+            
+            let parts = [];
+            let formattedDate = dateStr;
+            
+            // Cek format dengan slash (/) 
+            if (dateStr.includes('/')) {
+                parts = dateStr.split('/');
+                // Asumsi format MM/DD/YYYY dari contoh data
+                if (parts.length === 3) {
+                    let month = parts[0].padStart(2, '0');
+                    let day = parts[1].padStart(2, '0');
+                    let year = parts[2];
+                    if (year.length === 2) year = '20' + year; // Ubah 22 -> 2022
+                    formattedDate = `${day}/${month}/${year}`;
+                }
+            }
+            // Cek format dengan dash (-)
+            else if (dateStr.includes('-')) {
+                parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    // Bisa YYYY-MM-DD atau DD-MM-YYYY
+                    if (parts[0].length === 4) {
+                        // Format YYYY-MM-DD
+                        formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                    } else {
+                        // Format DD-MM-YYYY
+                        formattedDate = `${parts[0]}/${parts[1]}/${parts[2]}`;
+                    }
+                }
+            }
+            
+            return formattedDate;
+        }
+
         // Parse CSV manual (lebih ringan dari PapaParse)
         function parseCSV(csvText) {
             const lines = csvText.split('\n');
@@ -535,10 +579,10 @@
                 const siteId = row['Site ID'] || '';
                 if (!siteId) continue;
                 
-                const dateStr = row['Date'] || '';
+                const rawDate = row['Date'] || '';
                 const priority = mapPriority(row['Fault Level'] || row['Raw Severity'] || '');
                 const status = row['Status']?.toLowerCase().includes('close') ? 'Closed' : 'Open';
-                const aging = calculateAging(dateStr);
+                const aging = calculateAging(rawDate);
                 const region = row['New_Region'] || row['Location'] || 'Unknown';
                 const ticketId = row['Ticket ID'] || '';
                 const vendor = row['Vendor'] || 'Unknown';
@@ -546,13 +590,17 @@
                 const newRegion = row['New_Region'] || 'Unknown';
                 const mcCluster = row['MC Cluster'] || 'Unknown';
                 
+                // Format date untuk ditampilkan
+                const formattedDate = formatDate(rawDate);
+                
                 // Track unique regions
                 if (region && region !== 'Unknown') regions.add(region);
                 
                 allData.push({
                     siteId,
                     alarmName: row['Alarm Name'] || 'Unknown',
-                    date: dateStr,
+                    rawDate: rawDate,
+                    date: formattedDate, // Gunakan tanggal yang sudah diformat
                     priority,
                     status,
                     aging,
@@ -589,15 +637,39 @@
         function calculateAging(dateStr) {
             if (!dateStr) return 0;
             try {
-                const parts = dateStr.split('/');
-                if (parts.length === 3) {
-                    const date = new Date(parts[2], parts[0]-1, parts[1]);
+                // Bersihkan string tanggal
+                dateStr = dateStr.replace(/"/g, '').trim();
+                
+                let date;
+                // Coba parse berbagai format
+                if (dateStr.includes('/')) {
+                    const parts = dateStr.split('/');
+                    if (parts.length === 3) {
+                        // Asumsi format MM/DD/YYYY dari contoh
+                        date = new Date(parts[2], parts[0]-1, parts[1]);
+                    }
+                } else if (dateStr.includes('-')) {
+                    const parts = dateStr.split('-');
+                    if (parts.length === 3) {
+                        if (parts[0].length === 4) {
+                            // Format YYYY-MM-DD
+                            date = new Date(parts[0], parts[1]-1, parts[2]);
+                        } else {
+                            // Format DD-MM-YYYY
+                            date = new Date(parts[2], parts[1]-1, parts[0]);
+                        }
+                    }
+                }
+                
+                if (date) {
                     const today = new Date();
                     today.setHours(0,0,0,0);
                     date.setHours(0,0,0,0);
                     return Math.max(0, Math.floor((today - date) / (1000*60*60*24)));
                 }
-            } catch(e) {}
+            } catch(e) {
+                console.log('Error calculating aging for date:', dateStr);
+            }
             return 0;
         }
 

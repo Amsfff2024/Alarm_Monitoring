@@ -14,10 +14,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- PapaParse untuk parsing CSV -->
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Chart.js Data Labels Plugin -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
     <style>
         :root {
@@ -212,15 +208,6 @@
             color: white;
         }
         
-        /* CHARTS CONTAINER */
-        .chart-container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-            padding: 1rem;
-            height: 100%;
-        }
-        
         /* MAIN TABLE CONTAINER */
         .main-table-container {
             background: white;
@@ -352,18 +339,6 @@
             border-bottom: 1px dotted #666;
         }
         
-        /* SUMMARY SECTIONS */
-        .summary-section {
-            margin-bottom: 1.5rem;
-        }
-        
-        .summary-section h6 {
-            color: #1e293b;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        
         /* HIDDEN DETAILS */
         .hidden-details {
             display: none;
@@ -432,6 +407,48 @@
             padding-left: 12px;
             border-left: 4px solid #3b82f6;
         }
+
+        /* REGION TABLE CONTAINER */
+        .region-table-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* SUMMARY CARD */
+        .summary-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .summary-title {
+            font-family: var(--font-plus-jakarta);
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+
+        .ticket-id-cell {
+            font-family: 'SF Mono', monospace;
+            color: #0b5e42;
+            font-weight: 600;
+        }
+
+        .alarm-source-badge {
+            background: #e9ecef;
+            color: #495057;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -469,7 +486,7 @@
         <!-- KPI Summary Row -->
         <div class="row mb-4">
             <!-- TOTAL ALARM ISSUES -->
-            <div class="col-xl-2 col-lg-4 col-md-6 mb-3">
+            <div class="col-xl-4 col-lg-4 col-md-6 mb-3">
                 <div class="card kpi-card p-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -484,7 +501,7 @@
                 </div>
             </div>
             <!-- UNIQUE SITES -->
-            <div class="col-xl-2 col-lg-4 col-md-6 mb-3">
+            <div class="col-xl-4 col-lg-4 col-md-6 mb-3">
                 <div class="card kpi-card p-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -498,64 +515,19 @@
                     <div class="small text-muted mt-2">Distinct site locations</div>
                 </div>
             </div>
-            <!-- OPEN ALARM -->
-            <div class="col-xl-2 col-lg-4 col-md-6 mb-3">
+            <!-- TOTAL TICKET (UNIQUE) -->
+            <div class="col-xl-4 col-lg-4 col-md-6 mb-3">
                 <div class="card kpi-card p-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="card-title">OPEN ALARM</h6>
-                            <div class="kpi-value text-danger" id="kpiOpenIssues">0</div>
+                            <h6 class="card-title">TOTAL TICKET</h6>
+                            <div class="kpi-value text-success" id="kpiTotalTickets">0</div>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-exclamation-circle fa-2x text-danger opacity-50"></i>
+                            <i class="fas fa-ticket-alt fa-2x text-success opacity-50"></i>
                         </div>
                     </div>
-                    <div class="small text-muted mt-2">Alarm issues pending</div>
-                </div>
-            </div>
-            <!-- CLOSED ALARM -->
-            <div class="col-xl-2 col-lg-4 col-md-6 mb-3">
-                <div class="card kpi-card p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title">CLOSED ALARM</h6>
-                            <div class="kpi-value text-success" id="kpiClosedIssues">0</div>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-check-circle fa-2x text-success opacity-50"></i>
-                        </div>
-                    </div>
-                    <div class="small text-muted mt-2">Resolved alarm issues</div>
-                </div>
-            </div>
-            <!-- HIGH PRIORITY -->
-            <div class="col-xl-2 col-lg-4 col-md-6 mb-3">
-                <div class="card kpi-card p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title">HIGH PRIORITY</h6>
-                            <div class="kpi-value text-warning" id="kpiHighPriority">0</div>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-flag fa-2x text-warning opacity-50"></i>
-                        </div>
-                    </div>
-                    <div class="small text-muted mt-2">P1/P2 alarm issues</div>
-                </div>
-            </div>
-            <!-- AGING > 1 MONTH -->
-            <div class="col-xl-2 col-lg-4 col-md-6 mb-3">
-                <div class="card kpi-card p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title">AGING > 1 MONTH</h6>
-                            <div class="kpi-value text-info" id="kpiAgingIssues">0</div>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-calendar-times fa-2x text-info opacity-50"></i>
-                        </div>
-                    </div>
-                    <div class="small text-muted mt-2">Alarm >30 days old</div>
+                    <div class="small text-muted mt-2">Unique ticket IDs</div>
                 </div>
             </div>
         </div>
@@ -605,7 +577,7 @@
                             </div>
                         </div>
                         <div class="row mt-3">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-chart-bar"></i></span>
                                     <select class="form-select" id="filterAlarmName" onchange="applyFilters()">
@@ -614,7 +586,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-industry"></i></span>
                                     <select class="form-select" id="filterVendor" onchange="applyFilters()">
@@ -623,34 +595,9 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-layer-group"></i></span>
-                                    <select class="form-select" id="filterSiteType" onchange="applyFilters()">
-                                        <option value="">All Site Types</option>
-                                        <!-- Options will be populated dynamically -->
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-clock"></i></span>
-                                    <select class="form-select" id="filterSLA" onchange="applyFilters()">
-                                        <option value="">All SLA</option>
-                                        <!-- Options will be populated dynamically -->
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
                                     <i class="fas fa-eraser me-1"></i> Clear All Filters
-                                </button>
-                            </div>
-                            <div class="col-md-6">
-                                <button class="btn btn-outline-primary w-100" onclick="fetchCSVData()">
-                                    <i class="fas fa-sync me-1"></i> Refresh Data
                                 </button>
                             </div>
                         </div>
@@ -679,113 +626,36 @@
             </div>
         </div>
 
-        <!-- Charts Row 1 -->
-        <div class="row mb-4">
-            <div class="col-lg-4 mb-4">
-                <div class="chart-container">
-                    <h6 class="chart-title"><i class="fas fa-chart-pie"></i>Alarm Status Distribution</h6>
-                    <div style="height: 250px; position: relative;">
-                        <canvas id="statusChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-4">
-                <div class="chart-container">
-                    <h6 class="chart-title"><i class="fas fa-chart-bar"></i>Alarm Priority Distribution</h6>
-                    <div style="height: 250px; position: relative;">
-                        <canvas id="priorityChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-4">
-                <div class="chart-container">
-                    <h6 class="chart-title"><i class="fas fa-chart-line"></i>Alarm by Region</h6>
-                    <div style="height: 250px; position: relative;">
-                        <canvas id="regionChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts Row 2 -->
-        <div class="row mb-4">
-            <div class="col-lg-4 mb-4">
-                <div class="chart-container">
-                    <h6 class="chart-title"><i class="fas fa-industry"></i>Alarm by Vendor</h6>
-                    <div style="height: 250px; position: relative;">
-                        <canvas id="vendorChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-4">
-                <div class="chart-container">
-                    <h6 class="chart-title"><i class="fas fa-exclamation-triangle"></i>Top Alarm Names</h6>
-                    <div style="height: 250px; position: relative;">
-                        <canvas id="alarmChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-4">
-                <div class="chart-container">
-                    <h6 class="chart-title"><i class="fas fa-calendar-alt"></i>Aging Distribution</h6>
-                    <div style="height: 250px; position: relative;">
-                        <canvas id="agingChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Summary Tables -->
+        <!-- Summary Cards Row -->
         <div class="row mb-4">
             <!-- Top Sites with Alarm Issues -->
-            <div class="col-lg-4 mb-4">
-                <div class="chart-container">
-                    <h6 class="chart-title"><i class="fas fa-building"></i>Top Sites with Alarm Issues</h6>
-                    <div class="table-responsive" style="max-height: 300px;">
+            <div class="col-lg-6 mb-4">
+                <div class="summary-card">
+                    <h6 class="summary-title"><i class="fas fa-building"></i> Top Sites with Alarm Issues</h6>
+                    <div class="table-responsive" style="max-height: 350px;">
                         <table class="table table-sm table-hover">
                             <thead>
                                 <tr>
                                     <th>Site ID</th>
-                                    <th class="text-end">Issues</th>
+                                    <th>Alarm Source</th>
+                                    <th class="text-end">Total</th>
                                     <th class="text-end">Open</th>
-                                    <th class="text-end">P1/P2</th>
+                                    
                                 </tr>
                             </thead>
                             <tbody id="topSitesBody">
-                                <tr><td colspan="4" class="text-center py-3">Loading Alarm data...</td></tr>
+                                <tr><td colspan="5" class="text-center py-3">Loading data...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-            
-            <!-- Aging Analysis for Alarm -->
-            <div class="col-lg-4 mb-4">
-                <div class="chart-container">
-                    <h6 class="chart-title"><i class="fas fa-calendar-alt"></i>Oldest Open Alarm Issues</h6>
-                    <div class="table-responsive" style="max-height: 300px;">
-                        <table class="table table-sm table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Site ID</th>
-                                    <th>Alarm Name</th>
-                                    <th class="text-end">Aging</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="agingIssuesBody">
-                                <tr><td colspan="4" class="text-center py-3">Loading Alarm data...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Top Alarm Categories for Alarm -->
-            <div class="col-lg-4 mb-4">
-                <div class="chart-container">
-                    <h6 class="chart-title"><i class="fas fa-chart-pie"></i>Top Alarm Names</h6>
-                    <div class="table-responsive" style="max-height: 300px;">
+
+            <!-- Top Alarm Names -->
+            <div class="col-lg-6 mb-4">
+                <div class="summary-card">
+                    <h6 class="summary-title"><i class="fas fa-exclamation-triangle"></i> Top Alarm Names</h6>
+                    <div class="table-responsive" style="max-height: 350px;">
                         <table class="table table-sm table-hover">
                             <thead>
                                 <tr>
@@ -795,7 +665,7 @@
                                 </tr>
                             </thead>
                             <tbody id="topAlarmsBody">
-                                <tr><td colspan="3" class="text-center py-3">Loading Alarm data...</td></tr>
+                                <tr><td colspan="3" class="text-center py-3">Loading data...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -803,30 +673,46 @@
             </div>
         </div>
 
-        <!-- Region Performance Summary -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="chart-container">
-                    <h6 class="chart-title"><i class="fas fa-map-marked-alt"></i>Region Performance Summary (Alarm)</h6>
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Region</th>
-                                    <th class="text-end">Total Issues</th>
-                                    <th class="text-end">Open Issues</th>
-                                    <th class="text-end">P1/P2 Issues</th>
-                                    <th class="text-end">Avg Aging</th>
-                                    <th class="text-end">Unique Sites</th>
-                                    <th class="text-end">Closed Rate</th>
-                                </tr>
-                            </thead>
-                            <tbody id="regionSummaryBody">
-                                <tr><td colspan="7" class="text-center py-3">Loading Alarm data...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <!-- Region Performance Summary (Simplified) -->
+        <div class="region-table-container">
+            <h6 class="chart-title"><i class="fas fa-map-marked-alt"></i>Region Performance Summary</h6>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th>Region</th>
+                            <th class="text-end">Total Issues</th>
+                            <th class="text-end">Avg Aging</th>
+                            <th class="text-end">Unique Sites</th>
+                        </tr>
+                    </thead>
+                    <tbody id="regionSummaryBody">
+                        <tr><td colspan="4" class="text-center py-3">Loading Alarm data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Open Issues with Ticket ID (Oldest First) -->
+        <div class="region-table-container">
+            <h6 class="chart-title"><i class="fas fa-ticket-alt"></i> Open Issues with Ticket ID (Oldest First)</h6>
+            <div class="table-responsive" style="max-height: 400px;">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th>Site ID</th>
+                            <th>Alarm Name</th>
+                            <th>Priority</th>
+                            <th class="text-end">Aging (Days)</th>
+                            <th>Region</th>
+                            <th>Vendor</th>
+                            <th>Ticket ID</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketIssuesBody">
+                        <tr><td colspan="7" class="text-center py-3">Loading data...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -912,9 +798,6 @@
 
     <!-- JavaScript -->
     <script>
-        // Register the plugin
-        Chart.register(ChartDataLabels);
-        
         // ==================== KONFIGURASI ====================
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHmL8yt33aPtILq2x9bw7miJh38cz5TjyT_r1d9ERpaMyE7OOL9DsUGQcZcbINhD1axc8kYhvc5zJP/pub?gid=0&single=true&output=csv";
 
@@ -922,7 +805,6 @@
         let allAlarmData = [];
         let filteredAlarmData = [];
         let currentSort = { column: 'aging', direction: 'desc' };
-        let statusChart, priorityChart, regionChart, vendorChart, alarmChart, agingChart;
         let autoRefreshInterval = null;
         let isAutoRefresh = true;
         const AUTO_REFRESH_INTERVAL = 30000; // 30 detik
@@ -986,8 +868,7 @@
             const regions = new Set();
             const alarmNames = new Set();
             const vendors = new Set();
-            const siteTypes = new Set();
-            const slas = new Set();
+            const uniqueTickets = new Set();
             
             rawData.forEach(row => {
                 try {
@@ -1002,12 +883,23 @@
                     const aging = calculateAging(dateStr);
                     
                     const rootCause = row['Root cause'] || row['Summary'] || 'Unknown';
-                    const ticketId = row['Ticket ID'] || '-';
+                    const ticketId = row['Ticket ID'] || '';
                     const region = row['New_Region'] || row['Location'] || 'Unknown';
                     const vendor = row['Vendor'] || 'Unknown';
                     const siteType = row['SiteType'] || 'Unknown';
-                    const woId = row['WO ID'] || '-';
+                    const woId = row['WO ID'] || '';
                     const date = row['Date'] || '';
+                    
+                    // Get Alarm Source (bisa dari berbagai kolom)
+                    let alarmSource = row['Alarm Source'] || row['alarmSource'] || 'Unknown';
+                    if (alarmSource === 'Unknown' && row['Alarm Name']) {
+                        // Extract source from Alarm Name if possible
+                        if (row['Alarm Name'].includes('_')) {
+                            alarmSource = row['Alarm Name'].split('_')[0];
+                        } else {
+                            alarmSource = 'Network';
+                        }
+                    }
                     
                     if (!siteId) return;
                     
@@ -1017,13 +909,18 @@
                     const cleanRegion = String(region).trim();
                     const cleanVendor = String(vendor).trim();
                     const cleanAlarmName = String(alarmName).trim();
-                    const cleanSiteType = String(siteType).trim();
+                    const cleanTicketId = String(ticketId).trim();
+                    const cleanAlarmSource = String(alarmSource).trim();
                     
-                    // Add to sets for filters
+                    // Add to sets for filters and unique tickets
                     if (cleanRegion) regions.add(cleanRegion);
                     if (cleanAlarmName) alarmNames.add(cleanAlarmName);
                     if (cleanVendor) vendors.add(cleanVendor);
-                    if (cleanSiteType) siteTypes.add(cleanSiteType);
+                    
+                    // Track unique tickets
+                    if (cleanTicketId && cleanTicketId !== '' && cleanTicketId !== '-' && cleanTicketId !== 'NULL' && cleanTicketId !== 'null') {
+                        uniqueTickets.add(cleanTicketId);
+                    }
                     
                     const processedRow = {
                         raw: row,
@@ -1033,14 +930,16 @@
                         status: cleanStatus,
                         aging: aging,
                         rootCause: rootCause,
-                        ticketId: ticketId,
+                        ticketId: cleanTicketId,
                         region: cleanRegion,
                         vendor: cleanVendor,
-                        siteType: cleanSiteType,
+                        siteType: siteType,
                         woId: woId,
                         date: date,
+                        alarmSource: cleanAlarmSource,
                         isHighAging: aging > 30,
-                        isCritical: aging > 60
+                        isCritical: aging > 60,
+                        hasTicket: cleanTicketId && cleanTicketId !== '' && cleanTicketId !== '-' && cleanTicketId !== 'NULL' && cleanTicketId !== 'null'
                     };
                     
                     allAlarmData.push(processedRow);
@@ -1050,12 +949,15 @@
             });
             
             console.log(`Processed ${allAlarmData.length} records`);
+            console.log(`Unique tickets: ${uniqueTickets.size}`);
+            
+            // Store unique ticket count
+            window.uniqueTicketCount = uniqueTickets.size;
             
             // Update filter options
             updateFilterOptions('filterRegion', Array.from(regions));
             updateFilterOptions('filterAlarmName', Array.from(alarmNames));
             updateFilterOptions('filterVendor', Array.from(vendors).sort());
-            updateFilterOptions('filterSiteType', Array.from(siteTypes).sort());
             
             applyFilters();
         }
@@ -1120,7 +1022,6 @@
             if (selectId === 'filterRegion') placeholderText = "All Regions";
             else if (selectId === 'filterAlarmName') placeholderText = "All Alarm Names";
             else if (selectId === 'filterVendor') placeholderText = "All Vendors";
-            else if (selectId === 'filterSiteType') placeholderText = "All Site Types";
             
             filterSelect.innerHTML = `<option value="">${placeholderText}</option>`;
             
@@ -1139,18 +1040,6 @@
             console.log('Total records:', allAlarmData.length);
             if (allAlarmData.length > 0) {
                 console.log('Sample records (first 3):', allAlarmData.slice(0, 3));
-                console.log('Status distribution:', {
-                    Open: allAlarmData.filter(d => d.status === 'Open').length,
-                    Closed: allAlarmData.filter(d => d.status === 'Closed').length
-                });
-                console.log('Priority distribution:', {
-                    P1: allAlarmData.filter(d => d.priority === 'P1').length,
-                    P2: allAlarmData.filter(d => d.priority === 'P2').length,
-                    P3: allAlarmData.filter(d => d.priority === 'P3').length,
-                    P4: allAlarmData.filter(d => d.priority === 'P4').length
-                });
-                console.log('All regions:', [...new Set(allAlarmData.map(d => d.region))]);
-                console.log('All vendors:', [...new Set(allAlarmData.map(d => d.vendor))]);
             }
             console.log('=== END ALARM DEBUG ===');
         }
@@ -1163,7 +1052,6 @@
             const filterRegion = document.getElementById('filterRegion').value;
             const filterAlarmName = document.getElementById('filterAlarmName').value;
             const filterVendor = document.getElementById('filterVendor').value;
-            const filterSiteType = document.getElementById('filterSiteType').value;
             
             filteredAlarmData = allAlarmData.filter(issue => {
                 const siteIdMatch = !searchSiteId || 
@@ -1184,15 +1072,14 @@
                 const vendorMatch = !filterVendor || 
                     issue.vendor === filterVendor;
                 
-                const siteTypeMatch = !filterSiteType || 
-                    issue.siteType === filterSiteType;
-                
-                return siteIdMatch && statusMatch && priorityMatch && regionMatch && alarmNameMatch && vendorMatch && siteTypeMatch;
+                return siteIdMatch && statusMatch && priorityMatch && regionMatch && alarmNameMatch && vendorMatch;
             });
             
             updateSummaryKPIs();
-            updateCharts();
-            updateSummaryTables();
+            updateTopSitesTable();
+            updateTopAlarmsTable();
+            updateRegionSummaryTable();
+            updateTicketIssuesTable();
             updateSearchResultInfo();
         }
 
@@ -1207,7 +1094,6 @@
             const filterRegion = document.getElementById('filterRegion').value;
             const filterAlarmName = document.getElementById('filterAlarmName').value;
             const filterVendor = document.getElementById('filterVendor').value;
-            const filterSiteType = document.getElementById('filterSiteType').value;
             
             // Build search description
             let searchDescription = [];
@@ -1217,7 +1103,6 @@
             if (filterRegion) searchDescription.push(`Region: ${filterRegion}`);
             if (filterAlarmName) searchDescription.push(`Alarm: ${filterAlarmName}`);
             if (filterVendor) searchDescription.push(`Vendor: ${filterVendor}`);
-            if (filterSiteType) searchDescription.push(`Site Type: ${filterSiteType}`);
             
             if (searchDescription.length > 0) {
                 searchResultTitle.textContent = `Search Results (${filteredAlarmData.length} issues found)`;
@@ -1238,7 +1123,6 @@
             document.getElementById('filterRegion').value = '';
             document.getElementById('filterAlarmName').value = '';
             document.getElementById('filterVendor').value = '';
-            document.getElementById('filterSiteType').value = '';
             
             applyFilters();
         }
@@ -1264,534 +1148,26 @@
             // Calculate unique sites
             const uniqueSites = new Set(allAlarmData.map(issue => issue.siteId)).size;
             
-            const openIssues = allAlarmData.filter(issue => issue.status === 'Open').length;
-            const closedIssues = allAlarmData.filter(issue => issue.status === 'Closed').length;
-            const highPriorityIssues = allAlarmData.filter(issue => issue.priority === 'P1' || issue.priority === 'P2').length;
-            const agingIssues = allAlarmData.filter(issue => issue.aging > 30).length;
-            
             document.getElementById('kpiTotalIssues').textContent = totalIssues.toLocaleString();
             document.getElementById('kpiUniqueSites').textContent = uniqueSites.toLocaleString();
-            document.getElementById('kpiOpenIssues').textContent = openIssues.toLocaleString();
-            document.getElementById('kpiClosedIssues').textContent = closedIssues.toLocaleString();
-            document.getElementById('kpiHighPriority').textContent = highPriorityIssues.toLocaleString();
-            document.getElementById('kpiAgingIssues').textContent = agingIssues.toLocaleString();
+            
+            // Total unique tickets
+            const uniqueTickets = new Set(
+                allAlarmData
+                    .filter(issue => issue.hasTicket)
+                    .map(issue => issue.ticketId)
+            ).size;
+            document.getElementById('kpiTotalTickets').textContent = uniqueTickets.toLocaleString();
             
             // Update total records
             document.getElementById('totalRecords').textContent = totalIssues;
-        }
-
-        function updateCharts() {
-            // Update Status Chart
-            const statusCounts = {
-                'Open': filteredAlarmData.filter(issue => issue.status === 'Open').length,
-                'Closed': filteredAlarmData.filter(issue => issue.status === 'Closed').length
-            };
-            
-            if (statusChart) statusChart.destroy();
-            const statusCtx = document.getElementById('statusChart');
-            if (statusCtx) {
-                statusChart = new Chart(statusCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Open', 'Closed'],
-                        datasets: [{
-                            data: [statusCounts.Open, statusCounts.Closed],
-                            backgroundColor: ['#dc3545', '#28a745'],
-                            borderWidth: 1,
-                            hoverOffset: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '65%',
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    font: {
-                                        family: 'Inter',
-                                        size: 10
-                                    }
-                                }
-                            },
-                            datalabels: {
-                                display: true,
-                                color: '#ffffff',
-                                font: {
-                                    family: 'Inter',
-                                    weight: 'bold',
-                                    size: 12
-                                },
-                                formatter: (value, context) => {
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                    return `${percentage}%`;
-                                },
-                                anchor: 'center',
-                                align: 'center',
-                                offset: 0
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.raw || 0;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                        return `${label}: ${value} (${percentage}%)`;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // Update Priority Chart
-            const priorityCounts = {
-                'P1': filteredAlarmData.filter(issue => issue.priority === 'P1').length,
-                'P2': filteredAlarmData.filter(issue => issue.priority === 'P2').length,
-                'P3': filteredAlarmData.filter(issue => issue.priority === 'P3').length,
-                'P4': filteredAlarmData.filter(issue => issue.priority === 'P4').length
-            };
-            
-            if (priorityChart) priorityChart.destroy();
-            const priorityCtx = document.getElementById('priorityChart');
-            if (priorityCtx) {
-                const maxValue = Math.max(...Object.values(priorityCounts));
-                const yAxisMax = Math.ceil(maxValue * 1.2);
-                
-                priorityChart = new Chart(priorityCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['P1 (Critical)', 'P2 (Major)', 'P3 (Minor)', 'P4 (Warning)'],
-                        datasets: [{
-                            label: 'Issues',
-                            data: [priorityCounts.P1, priorityCounts.P2, priorityCounts.P3, priorityCounts.P4],
-                            backgroundColor: ['#dc3545', '#fd7e14', '#17a2b8', '#6c757d'],
-                            borderWidth: 0,
-                            borderRadius: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            datalabels: {
-                                display: true,
-                                color: '#000000',
-                                font: {
-                                    family: 'Inter',
-                                    weight: 'bold',
-                                    size: 12
-                                },
-                                formatter: (value) => {
-                                    return value;
-                                },
-                                anchor: 'end',
-                                align: 'top',
-                                offset: 4
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: yAxisMax,
-                                ticks: {
-                                    font: {
-                                        family: 'Inter',
-                                        size: 10
-                                    }
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    font: {
-                                        family: 'Inter',
-                                        size: 11
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // Update Region Chart
-            const regionCounts = {};
-            filteredAlarmData.forEach(issue => {
-                const region = issue.region || 'Unknown';
-                regionCounts[region] = (regionCounts[region] || 0) + 1;
-            });
-            
-            const sortedRegions = Object.entries(regionCounts)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 5);
-            
-            if (regionChart) regionChart.destroy();
-            const regionCtx = document.getElementById('regionChart');
-            if (regionCtx) {
-                regionChart = new Chart(regionCtx, {
-                    type: 'pie',
-                    data: {
-                        labels: sortedRegions.map(item => item[0]),
-                        datasets: [{
-                            data: sortedRegions.map(item => item[1]),
-                            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'right',
-                                labels: {
-                                    font: {
-                                        family: 'Inter',
-                                        size: 9
-                                    },
-                                    generateLabels: function(chart) {
-                                        const data = chart.data;
-                                        if (data.labels.length && data.datasets.length) {
-                                            const dataset = data.datasets[0];
-                                            return data.labels.map((label, i) => {
-                                                const value = dataset.data[i];
-                                                const total = dataset.data.reduce((a, b) => a + b, 0);
-                                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                                return {
-                                                    text: `${label}: ${value} (${percentage}%)`,
-                                                    fillStyle: dataset.backgroundColor[i],
-                                                    hidden: false,
-                                                    index: i
-                                                };
-                                            });
-                                        }
-                                        return [];
-                                    }
-                                }
-                            },
-                            datalabels: {
-                                display: true,
-                                color: '#ffffff',
-                                font: {
-                                    family: 'Inter',
-                                    weight: 'bold',
-                                    size: 11
-                                },
-                                formatter: (value, context) => {
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                    return `${percentage}%`;
-                                },
-                                anchor: 'center',
-                                align: 'center',
-                                offset: 0
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.raw || 0;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                        return `${label}: ${value} (${percentage}%)`;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // Update Vendor Chart
-            const vendorCounts = {};
-            filteredAlarmData.forEach(issue => {
-                const vendor = issue.vendor || 'Unknown';
-                vendorCounts[vendor] = (vendorCounts[vendor] || 0) + 1;
-            });
-            
-            const sortedVendors = Object.entries(vendorCounts)
-                .sort((a, b) => b[1] - a[1]);
-            
-            if (vendorChart) vendorChart.destroy();
-            const vendorCtx = document.getElementById('vendorChart');
-            if (vendorCtx) {
-                vendorChart = new Chart(vendorCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: sortedVendors.map(item => item[0]),
-                        datasets: [{
-                            label: 'Issues',
-                            data: sortedVendors.map(item => item[1]),
-                            backgroundColor: sortedVendors.map(item => 
-                                item[0].toLowerCase().includes('nokia') ? '#142c8e' :
-                                item[0].toLowerCase().includes('huawei') ? '#d4001a' :
-                                '#6b7280'
-                            ),
-                            borderWidth: 0,
-                            borderRadius: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            datalabels: {
-                                display: true,
-                                color: '#000000',
-                                font: {
-                                    family: 'Inter',
-                                    weight: 'bold',
-                                    size: 11
-                                },
-                                formatter: (value) => {
-                                    return value;
-                                },
-                                anchor: 'end',
-                                align: 'top',
-                                offset: 4
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    font: {
-                                        family: 'Inter',
-                                        size: 10
-                                    }
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    font: {
-                                        family: 'Inter',
-                                        size: 10
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // Update Alarm Chart
-            const alarmCounts = {};
-            filteredAlarmData.forEach(issue => {
-                const alarm = issue.alarmName || 'Unknown';
-                alarmCounts[alarm] = (alarmCounts[alarm] || 0) + 1;
-            });
-
-            const sortedAlarms = Object.entries(alarmCounts)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 5);
-
-            if (alarmChart) alarmChart.destroy();
-            const alarmCtx = document.getElementById('alarmChart');
-            if (alarmCtx) {
-                if (sortedAlarms.length > 0) {
-                    const maxValue = Math.max(...sortedAlarms.map(item => item[1]));
-                    const xAxisMax = Math.ceil(maxValue * 1.2);
-                    
-                    alarmChart = new Chart(alarmCtx, {
-                        type: 'bar',
-                        data: {
-                            labels: sortedAlarms.map(item => item[0].length > 30 ? item[0].substring(0, 27) + '...' : item[0]),
-                            datasets: [{
-                                label: 'Issues',
-                                data: sortedAlarms.map(item => item[1]),
-                                backgroundColor: sortedAlarms.map((_, index) => {
-                                    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
-                                    return colors[index % colors.length];
-                                }),
-                                borderWidth: 0,
-                                borderRadius: 4
-                            }]
-                        },
-                        options: {
-                            indexAxis: 'y',
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: { display: false },
-                                datalabels: {
-                                    display: true,
-                                    color: '#000000',
-                                    font: {
-                                        family: 'Inter',
-                                        weight: 'bold',
-                                        size: 11
-                                    },
-                                    formatter: (value) => {
-                                        return value;
-                                    },
-                                    anchor: 'end',
-                                    align: 'right',
-                                    offset: 4
-                                }
-                            },
-                            scales: {
-                                x: {
-                                    beginAtZero: true,
-                                    max: xAxisMax,
-                                    ticks: {
-                                        font: {
-                                            family: 'Inter',
-                                            size: 10
-                                        }
-                                    }
-                                },
-                                y: {
-                                    ticks: {
-                                        font: {
-                                            family: 'Inter',
-                                            size: 10
-                                        },
-                                        maxRotation: 0,
-                                        minRotation: 0
-                                    }
-                                }
-                            }
-                        }
-                    });
-                } else {
-                    alarmCtx.parentElement.innerHTML = '<div class="text-center py-5 text-muted">No alarm data available</div>';
-                }
-            }
-            
-            // Update Aging Distribution Chart
-            const agingRanges = {
-                '0-7 days': filteredAlarmData.filter(issue => issue.aging <= 7).length,
-                '8-14 days': filteredAlarmData.filter(issue => issue.aging > 7 && issue.aging <= 14).length,
-                '15-30 days': filteredAlarmData.filter(issue => issue.aging > 14 && issue.aging <= 30).length,
-                '31-60 days': filteredAlarmData.filter(issue => issue.aging > 30 && issue.aging <= 60).length,
-                '>60 days': filteredAlarmData.filter(issue => issue.aging > 60).length
-            };
-            
-            if (agingChart) agingChart.destroy();
-            const agingCtx = document.getElementById('agingChart');
-            if (agingCtx) {
-                const agingValues = Object.values(agingRanges);
-                const maxAgingValue = Math.max(...agingValues);
-                const yAxisMaxAging = Math.ceil(maxAgingValue * 1.2);
-                
-                agingChart = new Chart(agingCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(agingRanges),
-                        datasets: [{
-                            label: 'Issues',
-                            data: Object.values(agingRanges),
-                            backgroundColor: ['#28a745', '#17a2b8', '#ffc107', '#fd7e14', '#dc3545'],
-                            borderWidth: 0,
-                            borderRadius: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            datalabels: {
-                                display: true,
-                                color: '#000000',
-                                font: {
-                                    family: 'Inter',
-                                    weight: 'bold',
-                                    size: 11
-                                },
-                                formatter: (value) => {
-                                    return value;
-                                },
-                                anchor: 'end',
-                                align: 'top',
-                                offset: 4,
-                                clamp: true
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const value = context.raw || 0;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                        return `Count: ${value} (${percentage}%)`;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: yAxisMaxAging,
-                                grid: {
-                                    display: true,
-                                    color: '#e5e7eb'
-                                },
-                                ticks: {
-                                    font: {
-                                        family: 'Inter',
-                                        size: 10
-                                    },
-                                    stepSize: Math.ceil(maxAgingValue / 5)
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Jumlah Issues',
-                                    font: {
-                                        family: 'Inter',
-                                        size: 11,
-                                        weight: 'bold'
-                                    },
-                                    color: '#4b5563'
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    display: false
-                                },
-                                ticks: {
-                                    font: {
-                                        family: 'Inter',
-                                        size: 11,
-                                        weight: 'normal'
-                                    },
-                                    maxRotation: 0,
-                                    minRotation: 0
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Rentang Aging',
-                                    font: {
-                                        family: 'Inter',
-                                        size: 11,
-                                        weight: 'bold'
-                                    },
-                                    color: '#4b5563'
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        }
-
-        function updateSummaryTables() {
-            updateTopSitesTable();
-            updateAgingIssuesTable();
-            updateTopAlarmsTable();
-            updateRegionSummaryTable();
         }
 
         function updateTopSitesTable() {
             const tbody = document.getElementById('topSitesBody');
             
             if (filteredAlarmData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">No issues found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">No data available</td></tr>';
                 return;
             }
             
@@ -1801,6 +1177,7 @@
                 if (!siteStats[issue.siteId]) {
                     siteStats[issue.siteId] = {
                         siteId: issue.siteId,
+                        alarmSource: issue.alarmSource || 'Unknown',
                         total: 0,
                         open: 0,
                         highPriority: 0
@@ -1815,60 +1192,18 @@
             // Convert to array and sort by total issues
             const sortedSites = Object.values(siteStats)
                 .sort((a, b) => b.total - a.total)
-                .slice(0, 10);
+                .slice(0, 15);
             
             tbody.innerHTML = '';
-            
-            if (sortedSites.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">No site data available</td></tr>';
-                return;
-            }
             
             sortedSites.forEach(site => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="site-id-cell">${site.siteId}</td>
+                    <td><span class="alarm-source-badge">${site.alarmSource}</span></td>
                     <td class="text-end fw-semibold">${site.total}</td>
                     <td class="text-end">${site.open}</td>
                     <td class="text-end">${site.highPriority}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function updateAgingIssuesTable() {
-            const tbody = document.getElementById('agingIssuesBody');
-            
-            if (filteredAlarmData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">No issues found</td></tr>';
-                return;
-            }
-            
-            // Filter open issues and sort by aging (descending)
-            const agingIssues = filteredAlarmData
-                .filter(issue => issue.status === 'Open')
-                .sort((a, b) => b.aging - a.aging)
-                .slice(0, 10);
-            
-            tbody.innerHTML = '';
-            
-            if (agingIssues.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">No open issues</td></tr>';
-                return;
-            }
-            
-            agingIssues.forEach(issue => {
-                const agingBadgeClass = issue.aging > 60 ? 'badge-aging-high' : 
-                                       issue.aging > 30 ? 'badge-aging-medium' : 'badge-aging-low';
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="site-id-cell">${issue.siteId}</td>
-                    <td class="text-truncate-cell" title="${issue.alarmName}">${issue.alarmName.length > 30 ? issue.alarmName.substring(0, 27) + '...' : issue.alarmName}</td>
-                    <td class="text-end">
-                        <span class="badge ${agingBadgeClass}">${issue.aging} days</span>
-                    </td>
-                    <td><span class="badge badge-status-Open">${issue.status}</span></td>
                 `;
                 tbody.appendChild(row);
             });
@@ -1878,7 +1213,7 @@
             const tbody = document.getElementById('topAlarmsBody');
             
             if (filteredAlarmData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-3">No issues found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-3">No data available</td></tr>';
                 return;
             }
             
@@ -1903,16 +1238,59 @@
                     percentage: ((alarm.total / totalIssues) * 100).toFixed(1)
                 }))
                 .sort((a, b) => b.total - a.total)
-                .slice(0, 5);
+                .slice(0, 15);
             
             tbody.innerHTML = '';
             
             alarmArray.forEach(alarm => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${alarm.alarm.length > 40 ? alarm.alarm.substring(0, 37) + '...' : alarm.alarm}</td>
+                    <td title="${alarm.alarm}">${alarm.alarm.length > 40 ? alarm.alarm.substring(0, 37) + '...' : alarm.alarm}</td>
                     <td class="text-end fw-semibold">${alarm.total}</td>
                     <td class="text-end">${alarm.percentage}%</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateTicketIssuesTable() {
+            const tbody = document.getElementById('ticketIssuesBody');
+            
+            if (filteredAlarmData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3">No data available</td></tr>';
+                return;
+            }
+            
+            // Filter open issues with valid ticket ID and sort by aging (descending)
+            const ticketIssues = filteredAlarmData
+                .filter(issue => issue.status === 'Open' && issue.hasTicket)
+                .sort((a, b) => b.aging - a.aging)
+                .slice(0, 50); // Tampilkan 50 oldest with tickets
+            
+            tbody.innerHTML = '';
+            
+            if (ticketIssues.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3">No open issues with Ticket ID</td></tr>';
+                return;
+            }
+            
+            ticketIssues.forEach(issue => {
+                const agingBadgeClass = issue.aging > 60 ? 'badge-aging-high' : 
+                                       issue.aging > 30 ? 'badge-aging-medium' : 'badge-aging-low';
+                
+                const priorityBadgeClass = `badge-priority-${issue.priority}`;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="site-id-cell">${issue.siteId}</td>
+                    <td class="text-truncate-cell" title="${issue.alarmName}">${issue.alarmName.length > 30 ? issue.alarmName.substring(0, 27) + '...' : issue.alarmName}</td>
+                    <td><span class="badge ${priorityBadgeClass}">${issue.priority}</span></td>
+                    <td class="text-end">
+                        <span class="badge ${agingBadgeClass}">${issue.aging} days</span>
+                    </td>
+                    <td>${issue.region || '-'}</td>
+                    <td>${issue.vendor || '-'}</td>
+                    <td class="ticket-id-cell">${issue.ticketId}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -1922,7 +1300,7 @@
             const tbody = document.getElementById('regionSummaryBody');
             
             if (filteredAlarmData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3">No issues found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">No issues found</td></tr>';
                 return;
             }
             
@@ -1934,30 +1312,22 @@
                     regionStats[region] = {
                         region: region,
                         total: 0,
-                        open: 0,
-                        highPriority: 0,
                         totalAging: 0,
-                        openCount: 0,
                         sites: new Set()
                     };
                 }
                 
                 regionStats[region].total++;
-                if (issue.status === 'Open') {
-                    regionStats[region].open++;
-                    regionStats[region].totalAging += issue.aging;
-                    regionStats[region].openCount++;
-                }
-                if (issue.priority === 'P1' || issue.priority === 'P2') regionStats[region].highPriority++;
+                regionStats[region].totalAging += issue.aging;
                 regionStats[region].sites.add(issue.siteId);
             });
             
             // Calculate metrics and convert to array
             const regionArray = Object.values(regionStats).map(region => ({
-                ...region,
-                avgAging: region.openCount > 0 ? Math.round(region.totalAging / region.openCount) : 0,
-                uniqueSites: region.sites.size,
-                closedRate: region.total > 0 ? Math.round(((region.total - region.open) / region.total) * 100) : 0
+                region: region.region,
+                total: region.total,
+                avgAging: Math.round(region.totalAging / region.total),
+                uniqueSites: region.sites.size
             })).sort((a, b) => b.total - a.total);
             
             tbody.innerHTML = '';
@@ -1967,31 +1337,8 @@
                 row.innerHTML = `
                     <td><strong>${region.region}</strong></td>
                     <td class="text-end">${region.total}</td>
-                    <td class="text-end">
-                        ${region.open}
-                        <span class="stats-badge ${region.open > 0 ? 'stats-badge-danger' : 'stats-badge-success'}">
-                            ${Math.round((region.open / region.total) * 100)}%
-                        </span>
-                    </td>
-                    <td class="text-end">
-                        ${region.highPriority}
-                        <span class="stats-badge ${region.highPriority > 0 ? 'stats-badge-warning' : 'stats-badge-success'}">
-                            ${Math.round((region.highPriority / region.total) * 100)}%
-                        </span>
-                    </td>
-                    <td class="text-end">
-                        ${region.avgAging}d
-                        <span class="stats-badge ${region.avgAging > 30 ? 'stats-badge-danger' : region.avgAging > 15 ? 'stats-badge-warning' : 'stats-badge-success'}">
-                            ${region.avgAging > 30 ? 'High' : region.avgAging > 15 ? 'Medium' : 'Low'}
-                        </span>
-                    </td>
+                    <td class="text-end">${region.avgAging} days</td>
                     <td class="text-end">${region.uniqueSites}</td>
-                    <td class="text-end">
-                        ${region.closedRate}%
-                        <span class="stats-badge ${region.closedRate > 80 ? 'stats-badge-success' : region.closedRate > 50 ? 'stats-badge-warning' : 'stats-badge-danger'}">
-                            ${region.closedRate > 80 ? 'Good' : region.closedRate > 50 ? 'Fair' : 'Poor'}
-                        </span>
-                    </td>
                 `;
                 tbody.appendChild(row);
             });
@@ -2062,6 +1409,8 @@
                                       issue.vendor.toLowerCase().includes('huawei') ? 'vendor-huawei' : 'vendor-other';
                 const vendorInitial = issue.vendor ? issue.vendor.charAt(0).toUpperCase() : '?';
                 
+                const ticketDisplay = issue.hasTicket ? `<span class="ticket-id-cell">${issue.ticketId}</span>` : '-';
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="site-id-cell">${issue.siteId}</td>
@@ -2073,7 +1422,7 @@
                         <span class="badge ${agingBadgeClass}">${issue.aging}d</span>
                     </td>
                     <td class="text-truncate-cell tooltip-cell" title="${issue.rootCause}">${truncatedRootCause}</td>
-                    <td>${issue.ticketId || '-'}</td>
+                    <td>${ticketDisplay}</td>
                     <td>${issue.region || ''}</td>
                     <td>
                         <span class="vendor-logo ${vendorLogoClass}">${vendorInitial}</span>
@@ -2108,7 +1457,7 @@
             }
             
             const headers = ['Site ID', 'Alarm Name', 'Priority', 'Status', 'Aging', 
-                           'Root Cause', 'Ticket ID', 'Region', 'Vendor', 'Site Type', 'WO ID', 'Date'];
+                           'Root Cause', 'Ticket ID', 'Region', 'Vendor', 'Site Type', 'WO ID', 'Date', 'Alarm Source'];
             
             const csvData = [
                 headers.join(','),
@@ -2124,7 +1473,8 @@
                     `"${(issue.vendor || '').replace(/"/g, '""')}"`,
                     `"${(issue.siteType || '').replace(/"/g, '""')}"`,
                     issue.woId || '',
-                    issue.date || ''
+                    issue.date || '',
+                    `"${(issue.alarmSource || '').replace(/"/g, '""')}"`
                 ].join(','))
             ].join('\n');
             

@@ -219,7 +219,8 @@
             height: 600px;
             display: flex;
             flex-direction: column;
-            display: none; /* Hidden by default */
+            display: block; /* Changed from none to block - always visible */
+            margin-top: 20px;
         }
         
         .main-table-wrapper {
@@ -449,6 +450,20 @@
             font-size: 10px;
             font-weight: 600;
         }
+
+        .mc-cluster-badge {
+            background: #cfe2ff;
+            color: #084298;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        /* HIDE BUTTON */
+        .hide-button {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -610,10 +625,7 @@
                                             <small class="text-muted" id="searchResultText"></small>
                                         </div>
                                         <div>
-                                            <button class="btn btn-primary btn-sm" onclick="showDetailedTable()">
-                                                <i class="fas fa-table me-1"></i> Show Details
-                                            </button>
-                                            <button class="btn btn-outline-success btn-sm ms-2" onclick="exportToCSV()">
+                                            <button class="btn btn-primary btn-sm" onclick="exportToCSV()">
                                                 <i class="fas fa-download me-1"></i> Export
                                             </button>
                                         </div>
@@ -638,13 +650,11 @@
                                 <tr>
                                     <th>Site ID</th>
                                     <th>Alarm Source</th>
-                                    <th class="text-end">Total</th>
-                                    <th class="text-end">Open</th>
-                                    
+                                    <th class="text-end">Total Alarm</th>
                                 </tr>
                             </thead>
                             <tbody id="topSitesBody">
-                                <tr><td colspan="5" class="text-center py-3">Loading data...</td></tr>
+                                <tr><td colspan="3" class="text-center py-3">Loading data...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -682,20 +692,19 @@
                         <tr>
                             <th>Region</th>
                             <th class="text-end">Total Issues</th>
-                            <th class="text-end">Avg Aging</th>
                             <th class="text-end">Unique Sites</th>
                         </tr>
                     </thead>
                     <tbody id="regionSummaryBody">
-                        <tr><td colspan="4" class="text-center py-3">Loading Alarm data...</td></tr>
+                        <tr><td colspan="3" class="text-center py-3">Loading Alarm data...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Open Issues with Ticket ID (Oldest First) -->
+        <!-- Open Issues with Ticket ID (Oldest First) - No Duplicates -->
         <div class="region-table-container">
-            <h6 class="chart-title"><i class="fas fa-ticket-alt"></i> Open Issues with Ticket ID (Oldest First)</h6>
+            <h6 class="chart-title"><i class="fas fa-ticket-alt"></i> Open Issues with Ticket ID (Oldest First - No Duplicates)</h6>
             <div class="table-responsive" style="max-height: 400px;">
                 <table class="table table-sm table-hover">
                     <thead>
@@ -716,7 +725,7 @@
             </div>
         </div>
 
-        <!-- Detailed Alarm Issues Table (Hidden by default) -->
+        <!-- Detailed Alarm Issues Table (Always Visible) -->
         <div class="row">
             <div class="col-12">
                 <div class="main-table-container" id="detailedTableContainer">
@@ -726,9 +735,6 @@
                         </h6>
                         <div>
                             <span class="info-badge me-2" id="tableCountBadge">Showing 0 issues</span>
-                            <button class="btn btn-outline-secondary btn-sm" onclick="hideDetailedTable()">
-                                <i class="fas fa-times me-1"></i> Hide
-                            </button>
                             <button class="btn btn-outline-success btn-sm ms-2" onclick="exportToCSV()">
                                 <i class="fas fa-download me-1"></i> Export
                             </button>
@@ -745,22 +751,21 @@
                                         <th class="cursor-pointer" onclick="sortTable('alarmName')">
                                             Alarm Name <i class="fas fa-sort ms-1"></i>
                                         </th>
+                                        <th class="cursor-pointer" onclick="sortTable('date')">
+                                            Date <i class="fas fa-sort ms-1"></i>
+                                        </th>
                                         <th class="cursor-pointer" onclick="sortTable('priority')">
                                             Priority <i class="fas fa-sort ms-1"></i>
-                                        </th>
-                                        <th class="cursor-pointer" onclick="sortTable('status')">
-                                            Status <i class="fas fa-sort ms-1"></i>
                                         </th>
                                         <th class="cursor-pointer" onclick="sortTable('aging')">
                                             Aging <i class="fas fa-sort ms-1"></i>
                                         </th>
-                                        <th>Root Cause</th>
                                         <th>Ticket ID</th>
-                                        <th>Region</th>
-                                        <th>Vendor</th>
-                                        <th>Site Type</th>
                                         <th>WO ID</th>
-                                        <th>Date</th>
+                                        <th>Region</th>
+                                        <th>MC Cluster</th>
+                                        <th>Vendor</th>
+                                        <th>Root Cause</th>
                                     </tr>
                                 </thead>
                                 <tbody id="detailedIssuesTableBody">
@@ -850,9 +855,8 @@
                     // Update alarm count badge
                     document.getElementById('alarmCountBadge').textContent = `${allAlarmData.length} Issues`;
                     
-                    // Hide search result info and detailed table initially
+                    // Hide search result info
                     document.getElementById('searchResultInfo').style.display = 'none';
-                    document.getElementById('detailedTableContainer').style.display = 'none';
                 },
                 error: function(error) {
                     console.error('Error fetching CSV:', error);
@@ -889,6 +893,7 @@
                     const siteType = row['SiteType'] || 'Unknown';
                     const woId = row['WO ID'] || '';
                     const date = row['Date'] || '';
+                    const mcCluster = row['MC Cluster'] || row['MC-CIPUTAT'] || row['MC Cluster'] || '';
                     
                     // Get Alarm Source (bisa dari berbagai kolom)
                     let alarmSource = row['Alarm Source'] || row['alarmSource'] || 'Unknown';
@@ -911,6 +916,7 @@
                     const cleanAlarmName = String(alarmName).trim();
                     const cleanTicketId = String(ticketId).trim();
                     const cleanAlarmSource = String(alarmSource).trim();
+                    const cleanMcCluster = String(mcCluster).trim();
                     
                     // Add to sets for filters and unique tickets
                     if (cleanRegion) regions.add(cleanRegion);
@@ -937,6 +943,7 @@
                         woId: woId,
                         date: date,
                         alarmSource: cleanAlarmSource,
+                        mcCluster: cleanMcCluster,
                         isHighAging: aging > 30,
                         isCritical: aging > 60,
                         hasTicket: cleanTicketId && cleanTicketId !== '' && cleanTicketId !== '-' && cleanTicketId !== 'NULL' && cleanTicketId !== 'null'
@@ -1080,6 +1087,7 @@
             updateTopAlarmsTable();
             updateRegionSummaryTable();
             updateTicketIssuesTable();
+            updateDetailedIssuesTable();
             updateSearchResultInfo();
         }
 
@@ -1108,9 +1116,6 @@
                 searchResultTitle.textContent = `Search Results (${filteredAlarmData.length} issues found)`;
                 searchResultText.textContent = `Filters applied: ${searchDescription.join(', ')}`;
                 searchResultInfo.style.display = 'block';
-                
-                // Hide detailed table if showing
-                document.getElementById('detailedTableContainer').style.display = 'none';
             } else {
                 searchResultInfo.style.display = 'none';
             }
@@ -1125,20 +1130,6 @@
             document.getElementById('filterVendor').value = '';
             
             applyFilters();
-        }
-
-        function showDetailedTable() {
-            document.getElementById('detailedTableContainer').style.display = 'flex';
-            updateDetailedIssuesTable();
-            
-            // Scroll to the table
-            document.getElementById('detailedTableContainer').scrollIntoView({ 
-                behavior: 'smooth' 
-            });
-        }
-
-        function hideDetailedTable() {
-            document.getElementById('detailedTableContainer').style.display = 'none';
         }
 
         // ==================== FUNGSI UPDATE UI ====================
@@ -1167,7 +1158,7 @@
             const tbody = document.getElementById('topSitesBody');
             
             if (filteredAlarmData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">No data available</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-3">No data available</td></tr>';
                 return;
             }
             
@@ -1178,15 +1169,11 @@
                     siteStats[issue.siteId] = {
                         siteId: issue.siteId,
                         alarmSource: issue.alarmSource || 'Unknown',
-                        total: 0,
-                        open: 0,
-                        highPriority: 0
+                        total: 0
                     };
                 }
                 
                 siteStats[issue.siteId].total++;
-                if (issue.status === 'Open') siteStats[issue.siteId].open++;
-                if (issue.priority === 'P1' || issue.priority === 'P2') siteStats[issue.siteId].highPriority++;
             });
             
             // Convert to array and sort by total issues
@@ -1202,8 +1189,6 @@
                     <td class="site-id-cell">${site.siteId}</td>
                     <td><span class="alarm-source-badge">${site.alarmSource}</span></td>
                     <td class="text-end fw-semibold">${site.total}</td>
-                    <td class="text-end">${site.open}</td>
-                    <td class="text-end">${site.highPriority}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -1261,20 +1246,31 @@
                 return;
             }
             
-            // Filter open issues with valid ticket ID and sort by aging (descending)
-            const ticketIssues = filteredAlarmData
+            // Get unique tickets - remove duplicates, keep the oldest/highest aging
+            const ticketMap = new Map();
+            
+            filteredAlarmData
                 .filter(issue => issue.status === 'Open' && issue.hasTicket)
+                .forEach(issue => {
+                    // If ticket ID not in map, or current issue has higher aging, replace
+                    if (!ticketMap.has(issue.ticketId) || ticketMap.get(issue.ticketId).aging < issue.aging) {
+                        ticketMap.set(issue.ticketId, issue);
+                    }
+                });
+            
+            // Convert map to array and sort by aging
+            const uniqueTicketIssues = Array.from(ticketMap.values())
                 .sort((a, b) => b.aging - a.aging)
-                .slice(0, 50); // Tampilkan 50 oldest with tickets
+                .slice(0, 50);
             
             tbody.innerHTML = '';
             
-            if (ticketIssues.length === 0) {
+            if (uniqueTicketIssues.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3">No open issues with Ticket ID</td></tr>';
                 return;
             }
             
-            ticketIssues.forEach(issue => {
+            uniqueTicketIssues.forEach(issue => {
                 const agingBadgeClass = issue.aging > 60 ? 'badge-aging-high' : 
                                        issue.aging > 30 ? 'badge-aging-medium' : 'badge-aging-low';
                 
@@ -1300,7 +1296,7 @@
             const tbody = document.getElementById('regionSummaryBody');
             
             if (filteredAlarmData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">No issues found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-3">No issues found</td></tr>';
                 return;
             }
             
@@ -1312,13 +1308,11 @@
                     regionStats[region] = {
                         region: region,
                         total: 0,
-                        totalAging: 0,
                         sites: new Set()
                     };
                 }
                 
                 regionStats[region].total++;
-                regionStats[region].totalAging += issue.aging;
                 regionStats[region].sites.add(issue.siteId);
             });
             
@@ -1326,7 +1320,6 @@
             const regionArray = Object.values(regionStats).map(region => ({
                 region: region.region,
                 total: region.total,
-                avgAging: Math.round(region.totalAging / region.total),
                 uniqueSites: region.sites.size
             })).sort((a, b) => b.total - a.total);
             
@@ -1337,7 +1330,6 @@
                 row.innerHTML = `
                     <td><strong>${region.region}</strong></td>
                     <td class="text-end">${region.total}</td>
-                    <td class="text-end">${region.avgAging} days</td>
                     <td class="text-end">${region.uniqueSites}</td>
                 `;
                 tbody.appendChild(row);
@@ -1351,7 +1343,7 @@
             if (filteredAlarmData.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="12" class="text-center py-5">
+                        <td colspan="11" class="text-center py-5">
                             <i class="fas fa-search fa-2x text-muted mb-3"></i><br>
                             No issues found matching your criteria
                         </td>
@@ -1370,6 +1362,13 @@
                 
                 if (currentSort.column === 'aging') {
                     return currentSort.direction === 'asc' ? aVal - bVal : bVal - aVal;
+                }
+                
+                if (currentSort.column === 'date') {
+                    // Simple string comparison for dates
+                    return currentSort.direction === 'asc' 
+                        ? (a.date || '').localeCompare(b.date || '')
+                        : (b.date || '').localeCompare(a.date || '');
                 }
                 
                 if (typeof aVal === 'string' && typeof bVal === 'string') {
@@ -1410,27 +1409,27 @@
                 const vendorInitial = issue.vendor ? issue.vendor.charAt(0).toUpperCase() : '?';
                 
                 const ticketDisplay = issue.hasTicket ? `<span class="ticket-id-cell">${issue.ticketId}</span>` : '-';
+                const mcClusterDisplay = issue.mcCluster ? `<span class="mc-cluster-badge">${issue.mcCluster}</span>` : '-';
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="site-id-cell">${issue.siteId}</td>
                     <td title="${issue.alarmName}">${truncatedAlarm}</td>
+                    <td>${issue.date || '-'}</td>
                     <td><span class="badge badge-priority-${issue.priority}">${issue.priority}</span></td>
-                    <td><span class="badge badge-status-${issue.status}">${issue.status}</span></td>
                     <td>
                         ${agingIndicator}
                         <span class="badge ${agingBadgeClass}">${issue.aging}d</span>
                     </td>
-                    <td class="text-truncate-cell tooltip-cell" title="${issue.rootCause}">${truncatedRootCause}</td>
                     <td>${ticketDisplay}</td>
+                    <td>${issue.woId || '-'}</td>
                     <td>${issue.region || ''}</td>
+                    <td>${mcClusterDisplay}</td>
                     <td>
                         <span class="vendor-logo ${vendorLogoClass}">${vendorInitial}</span>
                         ${issue.vendor || ''}
                     </td>
-                    <td>${issue.siteType || ''}</td>
-                    <td>${issue.woId || '-'}</td>
-                    <td>${issue.date || ''}</td>
+                    <td class="text-truncate-cell tooltip-cell" title="${issue.rootCause}">${truncatedRootCause}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -1456,25 +1455,23 @@
                 return;
             }
             
-            const headers = ['Site ID', 'Alarm Name', 'Priority', 'Status', 'Aging', 
-                           'Root Cause', 'Ticket ID', 'Region', 'Vendor', 'Site Type', 'WO ID', 'Date', 'Alarm Source'];
+            const headers = ['Site ID', 'Alarm Name', 'Date', 'Priority', 'Aging', 
+                           'Ticket ID', 'WO ID', 'Region', 'MC Cluster', 'Vendor', 'Root Cause'];
             
             const csvData = [
                 headers.join(','),
                 ...filteredAlarmData.map(issue => [
                     issue.siteId,
                     `"${(issue.alarmName || '').replace(/"/g, '""')}"`,
-                    issue.priority,
-                    issue.status,
-                    issue.aging,
-                    `"${(issue.rootCause || '').replace(/"/g, '""')}"`,
-                    issue.ticketId || '',
-                    `"${(issue.region || '').replace(/"/g, '""')}"`,
-                    `"${(issue.vendor || '').replace(/"/g, '""')}"`,
-                    `"${(issue.siteType || '').replace(/"/g, '""')}"`,
-                    issue.woId || '',
                     issue.date || '',
-                    `"${(issue.alarmSource || '').replace(/"/g, '""')}"`
+                    issue.priority,
+                    issue.aging,
+                    issue.ticketId || '',
+                    issue.woId || '',
+                    `"${(issue.region || '').replace(/"/g, '""')}"`,
+                    `"${(issue.mcCluster || '').replace(/"/g, '""')}"`,
+                    `"${(issue.vendor || '').replace(/"/g, '""')}"`,
+                    `"${(issue.rootCause || '').replace(/"/g, '""')}"`
                 ].join(','))
             ].join('\n');
             

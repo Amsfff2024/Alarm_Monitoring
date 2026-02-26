@@ -326,6 +326,12 @@
         .hidden {
             display: none;
         }
+        
+        /* Column width for date */
+        .date-column {
+            min-width: 100px;
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body>
@@ -369,10 +375,7 @@
                 <div class="kpi-label">Unique Sites</div>
                 <div class="kpi-value" id="uniqueSites">0</div>
             </div>
-            <div class="kpi-item">
-                <div class="kpi-label">Open Issues</div>
-                <div class="kpi-value" id="openIssues">0</div>
-            </div>
+            <!-- Open Issues card has been deleted -->
             <div class="kpi-item">
                 <div class="kpi-label">Unique Tickets</div>
                 <div class="kpi-value" id="totalTickets">0</div>
@@ -384,13 +387,7 @@
             <div class="filter-item">
                 <input type="text" id="searchSite" placeholder="🔍 Search Site ID" onkeyup="filterData()">
             </div>
-            <div class="filter-item">
-                <select id="filterStatus" onchange="filterData()">
-                    <option value="">All Status</option>
-                    <option value="Open">Open</option>
-                    <option value="Closed">Closed</option>
-                </select>
-            </div>
+            <!-- Status filter has been deleted -->
             <div class="filter-item">
                 <select id="filterPriority" onchange="filterData()">
                     <option value="">All Priority</option>
@@ -422,11 +419,14 @@
                         <tr>
                             <th>Site ID</th>
                             <th>Alarm Source</th>
+                            <th>Vendor</th>
+                            <th>New_Region</th>
+                            <th>MC Cluster</th>
                             <th class="text-right">Total</th>
                         </tr>
                     </thead>
                     <tbody id="topSitesTable">
-                        <tr><td colspan="3" class="text-muted loading">Loading...</td></tr>
+                        <tr><td colspan="6" class="text-muted loading">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -543,6 +543,8 @@
                 const ticketId = row['Ticket ID'] || '';
                 const vendor = row['Vendor'] || 'Unknown';
                 const alarmSource = row['Alarm Source'] || 'Network';
+                const newRegion = row['New_Region'] || 'Unknown';
+                const mcCluster = row['MC Cluster'] || 'Unknown';
                 
                 // Track unique regions
                 if (region && region !== 'Unknown') regions.add(region);
@@ -558,6 +560,8 @@
                     region,
                     vendor,
                     alarmSource,
+                    newRegion,
+                    mcCluster,
                     rootCause: row['Root cause'] || '-',
                     hasTicket: ticketId && ticketId !== '' && ticketId !== '-'
                 });
@@ -608,13 +612,11 @@
         // Filter data
         function filterData() {
             const search = document.getElementById('searchSite').value.toLowerCase();
-            const status = document.getElementById('filterStatus').value;
             const priority = document.getElementById('filterPriority').value;
             const region = document.getElementById('filterRegion').value;
             
             filteredData = allData.filter(item => {
                 if (search && !item.siteId.toLowerCase().includes(search)) return false;
-                if (status && item.status !== status) return false;
                 if (priority && item.priority !== priority) return false;
                 if (region && item.region !== region) return false;
                 return true;
@@ -622,7 +624,7 @@
             
             // Show filter alert
             const alert = document.getElementById('filterAlert');
-            if (search || status || priority || region) {
+            if (search || priority || region) {
                 alert.innerHTML = `🔍 Filtered: ${filteredData.length} issues found`;
                 alert.classList.remove('hidden');
             } else {
@@ -634,7 +636,6 @@
 
         function clearFilters() {
             document.getElementById('searchSite').value = '';
-            document.getElementById('filterStatus').value = '';
             document.getElementById('filterPriority').value = '';
             document.getElementById('filterRegion').value = '';
             filteredData = [...allData];
@@ -651,12 +652,10 @@
 
         function updateKPIs() {
             const uniqueSites = new Set(allData.map(d => d.siteId)).size;
-            const openIssues = allData.filter(d => d.status === 'Open').length;
             const uniqueTickets = new Set(allData.filter(d => d.hasTicket).map(d => d.ticketId)).size;
             
             document.getElementById('totalAlarm').textContent = allData.length;
             document.getElementById('uniqueSites').textContent = uniqueSites;
-            document.getElementById('openIssues').textContent = openIssues;
             document.getElementById('totalTickets').textContent = uniqueTickets;
             document.getElementById('totalRecords').textContent = allData.length;
         }
@@ -664,7 +663,7 @@
         function updateTopSites() {
             const tbody = document.getElementById('topSitesTable');
             if (filteredData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="text-muted">No data</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-muted">No data</td></tr>';
                 return;
             }
             
@@ -675,6 +674,9 @@
                     siteMap[item.siteId] = {
                         siteId: item.siteId,
                         alarmSource: item.alarmSource,
+                        vendor: item.vendor,
+                        newRegion: item.newRegion,
+                        mcCluster: item.mcCluster,
                         total: 0
                     };
                 }
@@ -690,6 +692,9 @@
                 <tr>
                     <td><strong>${site.siteId}</strong></td>
                     <td>${site.alarmSource}</td>
+                    <td>${site.vendor}</td>
+                    <td>${site.newRegion}</td>
+                    <td>${site.mcCluster}</td>
                     <td class="text-right">${site.total}</td>
                 </tr>
             `).join('');
@@ -730,7 +735,7 @@
                 <tr>
                     <td><strong>${item.siteId}</strong></td>
                     <td title="${item.alarmName}">${item.alarmName.substring(0, 30)}${item.alarmName.length > 30 ? '...' : ''}</td>
-                    <td>${item.date || '-'}</td>
+                    <td class="date-column">${item.date || '-'}</td>
                     <td><span class="badge badge-${item.priority.toLowerCase()}">${item.priority}</span></td>
                     <td><span class="badge ${agingClass}">${item.aging}d</span></td>
                     <td>${item.hasTicket ? item.ticketId : '-'}</td>

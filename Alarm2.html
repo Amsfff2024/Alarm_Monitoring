@@ -656,7 +656,7 @@
             const value = (row, ...names) => {
                 for (const name of names) {
                     const i = index[name.toLowerCase()];
-                    if (i !== undefined) return String(row[i] == null ? '' : row[i]).trim();
+                    if (i !== undefined) { const candidate = String(row[i] == null ? '' : row[i]).trim(); if (candidate) return candidate; }
                 }
                 return '';
             };
@@ -666,7 +666,7 @@
                 const siteId = value(row, 'Site ID');
                 if (!siteId) continue;
                 const rawDate = value(row, 'Date');
-                const severityRaw = value(row, 'Fault Level', 'Raw Severity');
+                const severityRaw = value(row, 'Fault Level') || value(row, 'Raw Severity');
                 const statusRaw = value(row, 'Status');
                 const priority = mapPriority(severityRaw);
                 const status = RANData.normalizeStatus(statusRaw);
@@ -729,6 +729,13 @@
                 }
                 
                 if (date) {
+                    if (dateStr.includes('/') && parts.length === 3 && parts[2].length === 2) {
+                        date.setFullYear(2000 + Number(parts[2]));
+                    }
+                    if (Number.isNaN(date.getTime())) return null;
+                    // Reject overflow dates (for example, month 13 or day 35).
+                    if (date.getMonth() !== Number(dateStr.includes('/') ? parts[0] - 1 : parts[1] - 1) ||
+                        date.getDate() !== Number(dateStr.includes('/') ? parts[1] : (parts[0].length === 4 ? parts[2] : parts[0]))) return null;
                     const today = new Date();
                     today.setHours(0,0,0,0);
                     date.setHours(0,0,0,0);

@@ -220,6 +220,7 @@
             color: #2563eb;
         }
         
+        .badge-unknown { background: #e5e7eb; color: #374151; }
         .badge-p4 {
             background: #f3e8ff;
             color: #9333ea;
@@ -556,6 +557,10 @@
         document.addEventListener('DOMContentLoaded', () => {
             updateTime();
             setInterval(updateTime, 1000);
+            document.getElementById('topSitesTable').addEventListener('click', event => {
+                const button = event.target.closest('[data-site-id]');
+                if (button) quickSearch(button.getAttribute('data-site-id'));
+            });
             loadData();
         });
 
@@ -725,6 +730,7 @@
                     const today = new Date();
                     today.setHours(0,0,0,0);
                     date.setHours(0,0,0,0);
+                    if (Number.isNaN(date.getTime())) return null;
                     return Math.max(0, Math.floor((today - date) / (1000*60*60*24)));
                 }
             } catch(e) {
@@ -1032,18 +1038,13 @@
             
             const headers = ['Site ID', 'Alarm Name', 'Date', 'Priority', 'Aging', 'Ticket ID', 'Region', 'Vendor'];
             const csv = [
-                headers.join(','),
+                headers.map(RANData.csvCell).join(','),
                 ...filteredData.map(d => [
-                    d.siteId,
-                    `"${d.alarmName.replace(/"/g, '""')}"`,
-                    d.date,
-                    d.priority,
-                    d.aging,
-                    d.ticketId,
-                    d.region,
-                    d.vendor
-                ].join(','))
-            ].join('\n');
+                    d.siteId, d.alarmName, d.rawDate,
+                    d.priority, d.aging === null ? '' : d.aging,
+                    d.ticketId, d.region, d.vendor
+                ].map(RANData.csvCell).join(','))
+            ].join('\r\n');
             
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
@@ -1078,8 +1079,9 @@
         }
 
         function showLoading(show) {
-            if (show) {
-                document.getElementById('mainTable').innerHTML = 
+            // Keep the last successful table visible during refresh.
+            if (show && allData.length === 0) {
+                document.getElementById('mainTable').innerHTML =
                     '<tr><td colspan="8" class="loading"><div class="loading-spinner"></div>Loading data...</td></tr>';
             }
         }

@@ -583,7 +583,9 @@
                 const csvText = await RANData.fetchText(CSV_URL + (CSV_URL.includes('?') ? '&' : '?') + '_=' + Date.now(), { timeoutMs: 30000 });
                 parseCSV(csvText);
                 alarmLastSuccess = new Date();
-                updateStatus('success', `Loaded ${allData.length} records • ${alarmLastSuccess.toLocaleTimeString()}`);
+                const unknownStatus = allData.filter(item => item.status === 'Unknown').length;
+                const unknownPriority = allData.filter(item => item.priority === 'Unknown').length;
+                updateStatus('success', `Loaded ${allData.length} records • Unknown status: ${unknownStatus} • Unknown severity: ${unknownPriority} • ${alarmLastSuccess.toLocaleTimeString()}`);
                 document.getElementById('lastUpdate').textContent = alarmLastSuccess.toLocaleTimeString();
             } catch (error) {
                 console.error('Alarm feed refresh failed; retaining last successful data:', error);
@@ -741,10 +743,12 @@
 
         function updateRegionFilter() {
             const select = document.getElementById('filterRegion');
-            select.innerHTML = '<option value="">All Regions</option>';
-            Array.from(regions).sort().forEach(r => {
-                select.innerHTML += `<option value="${r}">${r}</option>`;
+            const previous = select.value;
+            select.replaceChildren(new Option('All Regions', ''));
+            Array.from(regions).sort().forEach(region => {
+                select.add(new Option(region, region));
             });
+            if (Array.from(select.options).some(option => option.value === previous)) select.value = previous;
         }
 
         // Filter data

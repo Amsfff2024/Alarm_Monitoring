@@ -129,6 +129,7 @@ footer{max-width:1600px;margin:auto;padding:0 24px 26px;color:var(--mid);font-si
 
 </main>
 <footer>Blank NAV W41 • Executive monitoring dashboard • Category-level counts use supplied summary; Clearence database discrepancy flagged for validation. Charts and tables are interactive; use filters or export filtered CSV.</footer>
+<script src="assets/js/ran-data.js"></script>
 <script>
 const closed = [
 ["N3T","Power Issue",5],["Normal","Site Up",38],["Normal","Hardware Issue",6],["Normal","Power Issue",4],["Normal","Stolen issue",3],["Normal","Synchronization issue",2],["Normal","Transport issue",1],["Project","New Site",2],["Project","Relocation",1],["USO","Hardware Issue",2]
@@ -265,19 +266,7 @@ function downloadCSV(){
 // Live Google Sheets integration. Publish the target tab as CSV or allow public view access.
 const GOOGLE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSYnt8swNN_7jwiTGQJIdeWwbopMYt52YWdHo4Ts0C2Ir8JLZS2kffe-oO_GbtNoBxBMuw1O62Tl_qL/pub?gid=340698847&single=true&output=csv";
 let liveSourceActive = false;
-function parseCSV(text){
- const rows=[]; let row=[], field="", quoted=false;
- for(let i=0;i<text.length;i++){
-  const c=text[i], n=text[i+1];
-  if(quoted){if(c==='"'&&n==='"'){field+='"';i++;}else if(c==='"'){quoted=false;}else field+=c;}
-  else if(c==='"') quoted=true;
-  else if(c===','){row.push(field);field='';}
-  else if(c==='\n'){row.push(field.replace(/\r$/,''));rows.push(row);row=[];field='';}
-  else field+=c;
- }
- if(field.length||row.length){row.push(field.replace(/\r$/,''));rows.push(row);}
- return rows.filter(r=>r.some(v=>String(v).trim()!==''));
-}
+function parseCSV(text){ return RANData.parseCSV(text); }
 function normHeader(v){return String(v||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
 function normalizeLiveRows(csvText){
  const rows=parseCSV(csvText); if(rows.length<2) throw new Error('CSV kosong atau tidak memiliki baris data.');
@@ -295,8 +284,8 @@ function normalizeLiveRows(csvText){
  for(const row of rows.slice(1)){
   const obj={}; for(const key of Object.keys(aliases)){const j=idx[key];obj[key]=j<0?'':String(row[j]??'').trim();}
   if(!obj['Site ID']) continue;
-  obj.Status=obj.Status.toLowerCase()==='closed'?'Closed':obj.Status.toLowerCase()==='open'?'Open':obj.Status;
-  const age=Number(String(obj.aging_days).replace(/[^0-9.-]/g,''));obj.aging_days=Number.isFinite(age)?age:'';
+  obj.Status=RANData.normalizeStatus(obj.Status);
+  const rawAge=String(obj.aging_days||'').trim();const age=rawAge===''?NaN:Number(rawAge.replace(/[^0-9.-]/g,''));obj.aging_days=Number.isFinite(age)?age:'';
   if(!obj['Aging Category'] && obj.aging_days!=='') obj['Aging Category']=obj.aging_days>30?'>30d':obj.aging_days>=15?'16-30d':obj.aging_days>=8?'8-14d':obj.aging_days>=4?'4-7d':`${obj.aging_days}d`;
   out.push(obj);
  }
@@ -334,14 +323,26 @@ function rebuildLiveDashboard(rows){
  document.querySelector('#actionChart').closest('.card').querySelector('.hint').textContent='Not included in published source columns';
  liveSourceActive=true;currentPage=1;renderCombined();refreshDashboardFilters();
 }
+let liveRefreshInFlight=false, liveLastSuccess=null, liveLastError=null;
 async function loadGoogleSheetData(manual=false){
- const status=document.getElementById('dataStatus');status.textContent='Refreshing from Google Sheets…';
+ if(liveRefreshInFlight)return;
+ liveRefreshInFlight=true;
+ const status=document.getElementById('dataStatus');
+ status.textContent=liveLastSuccess?'Refreshing • last good data '+liveLastSuccess.toLocaleTimeString():'Refreshing Google Sheets…';
  try{
-  const response=await fetch(GOOGLE_CSV_URL+'&_='+Date.now(),{cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status+' saat membaca CSV.');
-  const text=await response.text();if(text.trim().startsWith('<!DOCTYPE')||text.trim().startsWith('<html'))throw new Error('Google Sheets belum dapat diakses sebagai CSV publik.');
+  const text=await RANData.fetchText(GOOGLE_CSV_URL+'&_='+Date.now(),{timeoutMs:30000});
   const rows=normalizeLiveRows(text);if(!rows.length)throw new Error('Tidak ada baris site valid dari CSV.');
-  rebuildLiveDashboard(rows);status.textContent=`Live • ${rows.length.toLocaleString()} rows • updated ${new Date().toLocaleTimeString()}`;
- }catch(e){status.textContent='Live data unavailable — showing embedded snapshot';console.warn('Google Sheets refresh failed:',e);if(manual)alert('Belum berhasil mengambil CSV Google Sheets. Pastikan tab Data sudah di-Publish to web sebagai CSV atau akses sheet diizinkan untuk publik. Detail: '+e.message);}
+  rebuildLiveDashboard(rows);
+  liveLastSuccess=new Date();liveLastError=null;
+  status.textContent=`Live • ${rows.length.toLocaleString()} rows • updated ${liveLastSuccess.toLocaleTimeString()}`;
+  status.title='Source: Google Sheets CSV | Last successful refresh: '+liveLastSuccess.toISOString();
+ }catch(e){
+  liveLastError=e;
+  status.textContent=liveLastSuccess?'Stale • refresh failed • last success '+liveLastSuccess.toLocaleTimeString():'Refresh failed • showing embedded snapshot';
+  status.title='Refresh error: '+e.message;
+  console.warn('Google Sheets refresh failed; last known data retained:',e);
+  if(manual)alert('Refresh Google Sheets gagal. Data terakhir tetap dipertahankan. Detail: '+e.message);
+ }finally{liveRefreshInFlight=false;}
 }
 loadGoogleSheetData(false);setInterval(()=>loadGoogleSheetData(false),5*60*1000);
 

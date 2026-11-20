@@ -301,14 +301,14 @@ function rebuildLiveDashboard(rows){
   const el=document.getElementById(id), old=el.value; el.innerHTML=''; const all=document.createElement('option');all.value='All';all.textContent=id==='siteFilter'?'All Site Categories':id==='categoryFilter'?'All Issue Categories':id==='tableSite'?'All Site Categories':id==='tableCircle'?'All Circles':'All Issue Categories';el.appendChild(all);
   [...new Set(vals.filter(v=>String(v||'').trim()).map(v=>String(v).trim()))].sort().forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o)}); if([...el.options].some(o=>o.value===old))el.value=old;
  }
- const openRows=rows.filter(r=>r.Status==='Open'), closedRows=rows.filter(r=>r.Status==='Closed'), total=rows.length;
- document.getElementById('kTotal').textContent=total.toLocaleString();document.getElementById('kClosed').textContent=closedRows.length.toLocaleString();document.getElementById('kOpen').textContent=openRows.length.toLocaleString();
+ const openRows=rows.filter(r=>r.Status==='Open'), closedRows=rows.filter(r=>r.Status==='Closed'), unknownStatusRows=rows.filter(r=>r.Status==='Unknown'), total=rows.length;
+ document.getElementById('kTotal').textContent=total.toLocaleString();document.getElementById('kTotal').nextElementSibling.textContent=unknownStatusRows.length.toLocaleString()+' records have Unknown status';document.getElementById('kClosed').textContent=closedRows.length.toLocaleString();document.getElementById('kOpen').textContent=openRows.length.toLocaleString();
  document.getElementById('kClosedNote').textContent=pct(closedRows.length,total)+' of total';document.getElementById('kOpenNote').textContent=pct(openRows.length,total)+' of total';
  const ltoa=openRows.filter(r=>String(r.Category).toLowerCase().includes('ltoa n3t')||String(r['Site Category']).toUpperCase()==='N3T');
  const aged=openRows.filter(r=>Number(r.aging_days)>30);
  document.querySelectorAll('.kpi-value')[3].textContent=ltoa.length.toLocaleString();document.querySelectorAll('.kpi-note')[3].textContent=pct(ltoa.length,openRows.length)+' of open sites';
  document.querySelectorAll('.kpi-value')[4].textContent=aged.length.toLocaleString();document.querySelectorAll('.kpi-note')[4].textContent=pct(aged.length,openRows.length)+' of open sites';
- setChart(0,['Closed','Open'],[closedRows.length,openRows.length],[colors.green,colors.red]);
+ setChart(0,['Closed','Open','Unknown'],[closedRows.length,openRows.length,unknownStatusRows.length],[colors.green,colors.red,colors.gray]);
  const cats=aggCount(openRows,'Site Category');setChart(1,cats.map(x=>x[0]),cats.map(x=>x[1]),cats.map((x,i)=>i===0?colors.red:i===1?colors.amber:colors.gray));
  const circles=aggCount(openRows,'Circle');setChart(2,circles.map(x=>x[0]),circles.map(x=>x[1]),circles.map((x,i)=>i===0?colors.red:i===1?colors.amber:colors.gray));
  const issues=aggCount(openRows,'Category').slice(0,10);setChart(3,issues.map(x=>x[0]),issues.map(x=>x[1]),issues.map((x,i)=>i===0?colors.red:colors.gray));

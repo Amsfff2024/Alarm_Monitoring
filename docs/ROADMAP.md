@@ -36,6 +36,23 @@ The product must distinguish alarm events from site issues. A high alarm count i
 - No production page has been replaced.
 
 ### Phase 1 — Stabilize data ingestion and correctness
+**Implementation status (2026-11-20):** Core browser-side utilities and both dashboard integrations are committed on the feature branch. Live Google Sheets and browser regression validation remain pending.
+
+**Implemented**
+- Shared dependency-free CSV parser supporting escaped quotes, quoted commas, CRLF and quoted newlines.
+- Shared fetch helper with timeout, HTML-response detection and no-cache requests.
+- Conservative status/severity normalization that preserves Unknown values.
+- HTML escaping and consistent CSV cell escaping helpers.
+- In-flight refresh protection and last-successful-data retention in both dashboards.
+- Staged parsing in Alarm2 before replacing the active dataset.
+- Unknown status visibility in the site issue status chart; Unknown severity/status counts in the alarm feed status.
+- Browser smoke-test page at `tests/ingestion-smoke-test.html`.
+
+**Still required before Phase 1 exit**
+- Run smoke tests in a browser and validate both pages against the live published sheets.
+- Confirm source date format/time zone and all actual status/severity values.
+- Verify refresh failure, manual refresh, filters, site drilldown, exports and print in desktop/mobile browsers.
+
 **Deliverables**
 - Shared CSV parser that supports quoted commas, escaped quotes, CRLF and quoted newlines.
 - Schema/alias validation with required and optional fields.

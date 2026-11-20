@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RAN Data Utility Smoke Tests</title>
+<style>body{font:14px system-ui,sans-serif;max-width:900px;margin:32px auto;padding:0 16px;color:#1f2937}li{padding:6px 0}.pass{color:#15803d}.fail{color:#b91c1c}code{background:#f3f4f6;padding:2px 4px;border-radius:4px}</style>
+<script src="../assets/js/ran-data.js"></script>
+</head>
+<body>
+<h1>RAN Data Utility Smoke Tests</h1>
+<p>Dependency-free browser smoke tests for the shared CSV and normalization helpers. No production feed is accessed.</p>
+<p id="summary">Running…</p>
+<ol id="results"></ol>
+<script>
+(function(){
+  const results=[];
+  function test(name,fn){try{fn();results.push({name,ok:true});}catch(error){results.push({name,ok:false,error:error.message});}}
+  function equal(actual,expected){if(JSON.stringify(actual)!==JSON.stringify(expected))throw new Error('Expected '+JSON.stringify(expected)+' but received '+JSON.stringify(actual));}
+  test('CSV parses comma inside quoted field',()=>equal(RANData.parseCSV('A,B\n1,"x,y"'),[['A','B'],['1','x,y']]));
+  test('CSV parses escaped quotes',()=>equal(RANData.parseCSV('A\n"say ""hello"""'),[['A'],['say "hello"']]));
+  test('CSV parses quoted newline and CRLF',()=>equal(RANData.parseCSV('A,B\r\n1,"line one\nline two"'),[['A','B'],['1','line one\nline two']]));
+  test('CSV rejects unclosed quote',()=>{let failed=false;try{RANData.parseCSV('A\n"unfinished');}catch(e){failed=true;}if(!failed)throw new Error('Expected malformed CSV to fail');});
+  test('Status keeps unknown values unknown',()=>equal(['Closed','Open','Unknown','Unknown'].map(RANData.normalizeStatus),['Closed','Open','Unknown','Unknown']));
+  test('Severity keeps unknown values unknown',()=>equal(['Critical','Major','Minor','Warning','N/A'].map(RANData.normalizePriority),['P1','P2','P3','P4','Unknown']));
+  test('HTML escaping protects markup',()=>equal(RANData.escapeHTML('<img src=x onerror="x">'),'&lt;img src=x onerror=&quot;x&quot;&gt;'));
+  test('CSV export escapes quotes and commas',()=>equal(RANData.csvCell('a,"b"'),'"a,""b"""'));
+  const list=document.getElementById('results');
+  results.forEach(r=>{const li=document.createElement('li');li.className=r.ok?'pass':'fail';li.textContent=(r.ok?'PASS — ':'FAIL — ')+r.name+(r.error?' ('+r.error+')':'');list.appendChild(li);});
+  const passed=results.filter(r=>r.ok).length;
+  const summary=document.getElementById('summary');
+  summary.textContent=passed+'/'+results.length+' tests passed';
+  summary.className=passed===results.length?'pass':'fail';
+})();
+</script>
+</body>
+</html>

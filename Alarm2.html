@@ -541,7 +541,8 @@
         </div>
     </div>
 
-    <script>
+    <script src="assets/js/ran-data.js"></script>
+<script>
         // Config - langsung URL CSV
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQHmL8yt33aPtILq2x9bw7miJh38cz5TjyT_r1d9ERpaMyE7OOL9DsUGQcZcbINhD1axc8kYhvc5zJP/pub?gid=0&single=true&output=csv';
         
@@ -566,17 +567,28 @@
         }
 
         // Load data dengan fetch sederhana
-        async function loadData() {
+        let alarmRefreshInFlight = false;
+        let alarmLastSuccess = null;
+        async function loadData(manual = false) {
+            if (alarmRefreshInFlight) return;
+            alarmRefreshInFlight = true;
             showLoading(true);
-            updateStatus('loading', 'Fetching data...');
-            
+            updateStatus('loading', alarmLastSuccess ? 'Refreshing; keeping last good data...' : 'Fetching data...');
             try {
-                const response = await fetch(CSV_URL);
-                const csvText = await response.text();
+                const csvText = await RANData.fetchText(CSV_URL + (CSV_URL.includes('?') ? '&' : '?') + '_=' + Date.now(), { timeoutMs: 30000 });
                 parseCSV(csvText);
+                alarmLastSuccess = new Date();
+                updateStatus('success', `Loaded ${allData.length} records • ${alarmLastSuccess.toLocaleTimeString()}`);
+                document.getElementById('lastUpdate').textContent = alarmLastSuccess.toLocaleTimeString();
             } catch (error) {
-                console.error('Error:', error);
-                showError('Gagal load data. Cek koneksi internet.');
+                console.error('Alarm feed refresh failed; retaining last successful data:', error);
+                updateStatus('error', alarmLastSuccess
+                    ? 'Stale • refresh failed • last success ' + alarmLastSuccess.toLocaleTimeString()
+                    : 'Data unavailable • no successful load yet');
+                if (manual) alert('Gagal memperbarui alarm feed. Data terakhir yang berhasil tetap dipertahankan. Detail: ' + error.message);
+                else if (!allData.length) showError('Gagal load data. Cek koneksi dan akses publik Google Sheets.');
+            } finally {
+                alarmRefreshInFlight = false;
                 showLoading(false);
             }
         }
@@ -626,100 +638,64 @@
 
         // Parse CSV manual (lebih ringan dari PapaParse)
         function parseCSV(csvText) {
-            const lines = csvText.split('\n');
-            const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
-            
-            allData = [];
-            regions.clear();
-            
-            // Process data
-            for (let i = 1; i < lines.length; i++) {
-                if (!lines[i].trim()) continue;
-                
-                // Simple CSV parsing (tanpa library)
-                const values = [];
-                let inQuote = false;
-                let currentValue = '';
-                
-                for (let char of lines[i]) {
-                    if (char === '"') {
-                        inQuote = !inQuote;
-                    } else if (char === ',' && !inQuote) {
-                        values.push(currentValue);
-                        currentValue = '';
-                    } else {
-                        currentValue += char;
-                    }
+            const rows = RANData.parseCSV(csvText);
+            if (rows.length < 2) throw new Error('CSV kosong atau tidak memiliki baris data.');
+            const headers = rows[0].map(h => String(h || '').trim().replace(/^\\uFEFF/, ''));
+            if (headers.some(h => !h)) throw new Error('Header CSV memiliki kolom kosong.');
+            const staged = [];
+            const nextRegions = new Set();
+            const index = Object.create(null);
+            headers.forEach((h, i) => { index[h.toLowerCase()] = i; });
+            const value = (row, ...names) => {
+                for (const name of names) {
+                    const i = index[name.toLowerCase()];
+                    if (i !== undefined) return String(row[i] == null ? '' : row[i]).trim();
                 }
-                values.push(currentValue);
-                
-                // Create object
-                const row = {};
-                headers.forEach((header, idx) => {
-                    row[header] = (values[idx] || '').replace(/"/g, '').trim();
-                });
-                
-                // Process data
-                const siteId = row['Site ID'] || '';
+                return '';
+            };
+
+            for (const values of rows.slice(1)) {
+                const row = values;
+                const siteId = value(row, 'Site ID');
                 if (!siteId) continue;
-                
-                const rawDate = row['Date'] || '';
-                const priority = mapPriority(row['Fault Level'] || row['Raw Severity'] || '');
-                const status = row['Status']?.toLowerCase().includes('close') ? 'Closed' : 'Open';
+                const rawDate = value(row, 'Date');
+                const severityRaw = value(row, 'Fault Level', 'Raw Severity');
+                const statusRaw = value(row, 'Status');
+                const priority = mapPriority(severityRaw);
+                const status = RANData.normalizeStatus(statusRaw);
                 const aging = calculateAging(rawDate);
-                const region = row['New_Region'] || row['Location'] || 'Unknown';
-                const ticketId = row['Ticket ID'] || '';
-                const vendor = row['Vendor'] || 'Unknown';
-                const alarmSource = row['Alarm Source'] || 'Network';
-                const newRegion = row['New_Region'] || 'Unknown';
-                const mcCluster = row['MC Cluster'] || 'Unknown';
-                
-                // Format date untuk ditampilkan
-                const formattedDate = formatDate(rawDate);
-                
-                // Track unique regions
-                if (region && region !== 'Unknown') regions.add(region);
-                
-                allData.push({
-                    siteId,
-                    alarmName: row['Alarm Name'] || 'Unknown',
-                    rawDate: rawDate,
-                    date: formattedDate, // Gunakan tanggal yang sudah diformat
-                    priority,
-                    status,
-                    aging,
-                    ticketId,
-                    region,
-                    vendor,
-                    alarmSource,
-                    newRegion,
-                    mcCluster,
-                    rootCause: row['Root cause'] || '-',
-                    hasTicket: ticketId && ticketId !== '' && ticketId !== '-'
+                const region = value(row, 'New_Region', 'Location') || 'Unknown';
+                const ticketId = value(row, 'Ticket ID');
+                const vendor = value(row, 'Vendor') || 'Unknown';
+                const alarmSource = value(row, 'Alarm Source') || 'Unknown';
+                const newRegion = value(row, 'New_Region') || 'Unknown';
+                const mcCluster = value(row, 'MC Cluster') || 'Unknown';
+                if (region !== 'Unknown') nextRegions.add(region);
+
+                staged.push({
+                    siteId, alarmName: value(row, 'Alarm Name') || 'Unknown',
+                    rawDate, date: formatDate(rawDate), priority, severityRaw,
+                    status, statusRaw, aging, ticketId, region, vendor,
+                    alarmSource, newRegion, mcCluster,
+                    rootCause: value(row, 'Root cause') || '-',
+                    hasTicket: !!ticketId && ticketId !== '-'
                 });
             }
-            
-            // Update filter options
+            if (!staged.length) throw new Error('CSV berhasil dibaca tetapi tidak ada record dengan Site ID valid.');
+
+            // Commit staged data only after complete parsing and validation.
+            allData = staged;
+            regions = nextRegions;
             updateRegionFilter();
-            
-            // Initial filter & display
             filteredData = [...allData];
             updateAll();
-            showLoading(false);
             updateStatus('success', `Loaded ${allData.length} records`);
-            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
         }
 
-        function mapPriority(level) {
-            level = String(level).toUpperCase();
-            if (level.includes('CRITICAL') || level.includes('P1')) return 'P1';
-            if (level.includes('MAJOR') || level.includes('P2')) return 'P2';
-            if (level.includes('MINOR') || level.includes('P3')) return 'P3';
-            return 'P4';
-        }
+        function mapPriority(level) { return RANData.normalizePriority(level); }
 
         function calculateAging(dateStr) {
-            if (!dateStr) return 0;
+            if (!dateStr) return null;
             try {
                 // Bersihkan string tanggal
                 dateStr = dateStr.replace(/"/g, '').trim();
@@ -754,7 +730,7 @@
             } catch(e) {
                 console.log('Error calculating aging for date:', dateStr);
             }
-            return 0;
+            return null;
         }
 
         function updateRegionFilter() {
@@ -876,7 +852,7 @@
                     <div class="sub-table mb-2">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 0 8px;">
                             <h4 style="font-size: 0.9rem; color: #2563eb;">
-                                📅 ${date} 
+                                📅 ${RANData.escapeHTML(date)} 
                                 <span class="badge badge-info" style="margin-left: 8px;">Total: ${dateGroup.total}</span>
                             </h4>
                         </div>
@@ -898,7 +874,7 @@
                     
                     html += `
                         <tr>
-                            <td title="${alarm.name}">${alarm.name.substring(0, 50)}${alarm.name.length > 50 ? '...' : ''}</td>
+                            <td title="${RANData.escapeHTML(alarm.name)}">${RANData.escapeHTML(alarm.name.substring(0, 50))}${alarm.name.length > 50 ? '...' : ''}</td>
                             <td><span class="badge badge-p3">${alarm.count}</span></td>
                             <td>${priorities}</td>
                             <td>${ticketCount > 0 ? 
@@ -971,15 +947,15 @@
             
             tbody.innerHTML = topSites.map(site => `
                 <tr>
-                    <td><strong>${site.siteId}</strong></td>
-                    <td>${site.alarmSource}</td>
-                    <td>${site.vendor}</td>
-                    <td>${site.newRegion}</td>
-                    <td>${site.mcCluster}</td>
+                    <td><strong>${RANData.escapeHTML(site.siteId)}</strong></td>
+                    <td>${RANData.escapeHTML(site.alarmSource)}</td>
+                    <td>${RANData.escapeHTML(site.vendor)}</td>
+                    <td>${RANData.escapeHTML(site.newRegion)}</td>
+                    <td>${RANData.escapeHTML(site.mcCluster)}</td>
                     <td class="text-right">${site.total}</td>
                     <td class="text-center">
                         <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.7rem;" 
-                                onclick="quickSearch('${site.siteId}')">
+                                data-site-id="${RANData.escapeHTML(site.siteId)}">
                             🔍 Detail
                         </button>
                     </td>
@@ -1021,18 +997,18 @@
             countSpan.textContent = `Showing ${filteredData.length} issues`;
             
             tbody.innerHTML = sorted.slice(0, 200).map(item => {
-                const agingClass = item.aging > 60 ? 'badge-p1' : item.aging > 30 ? 'badge-p2' : 'badge-p4';
+                const agingClass = item.aging === null ? 'badge-unknown' : item.aging > 60 ? 'badge-p1' : item.aging > 30 ? 'badge-p2' : 'badge-p4';
                 
                 return `
                 <tr>
-                    <td><strong>${item.siteId}</strong></td>
-                    <td title="${item.alarmName}">${item.alarmName.substring(0, 30)}${item.alarmName.length > 30 ? '...' : ''}</td>
-                    <td class="date-column">${item.date || '-'}</td>
-                    <td><span class="badge badge-${item.priority.toLowerCase()}">${item.priority}</span></td>
-                    <td><span class="badge ${agingClass}">${item.aging}d</span></td>
-                    <td>${item.hasTicket ? item.ticketId : '-'}</td>
-                    <td>${item.region}</td>
-                    <td>${item.vendor}</td>
+                    <td><strong>${RANData.escapeHTML(item.siteId)}</strong></td>
+                    <td title="${RANData.escapeHTML(item.alarmName)}">${RANData.escapeHTML(item.alarmName.substring(0, 30))}${item.alarmName.length > 30 ? '...' : ''}</td>
+                    <td class="date-column">${RANData.escapeHTML(item.date || '-')}</td>
+                    <td><span class="badge badge-${item.priority.toLowerCase()}">${RANData.escapeHTML(item.priority)}</span></td>
+                    <td><span class="badge ${agingClass}">${item.aging === null ? 'N/A' : item.aging + 'd'}</span></td>
+                    <td>${RANData.escapeHTML(item.hasTicket ? item.ticketId : '-')}</td>
+                    <td>${RANData.escapeHTML(item.region)}</td>
+                    <td>${RANData.escapeHTML(item.vendor)}</td>
                 </tr>
             `}).join('');
         }
@@ -1079,7 +1055,7 @@
         }
 
         function refreshData() {
-            loadData();
+            loadData(true);
         }
 
         function updateTime() {
@@ -1109,8 +1085,7 @@
         }
 
         function showError(msg) {
-            updateStatus('error', 'Error');
-            alert(msg);
+            updateStatus('error', msg);
         }
     </script>
 </body>

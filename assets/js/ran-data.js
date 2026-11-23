@@ -99,13 +99,13 @@
   function filterRecords(records, filters) {
     const f = filters || {};
     const exact = f.exact || {};
-    const search = String(f.search || '').trim().toLocaleLowerCase();
+    const searchTerms = (Array.isArray(f.search) ? f.search : [f.search]).map(value => String(value || '').trim().toLocaleLowerCase()).filter(Boolean);
     const searchFields = Array.isArray(f.searchFields) ? f.searchFields : [];
     return (Array.isArray(records) ? records : []).filter(record => {
       for (const [field, selected] of Object.entries(exact)) {
         if (selected !== '' && selected !== null && selected !== undefined && String(record[field] == null ? '' : record[field]) !== String(selected)) return false;
       }
-      if (search && !searchFields.some(field => String(record[field] == null ? '' : record[field]).toLocaleLowerCase().includes(search))) return false;
+      if (searchTerms.some(term => !searchFields.some(field => String(record[field] == null ? '' : record[field]).toLocaleLowerCase().includes(term)))) return false;
       return true;
     });
   }

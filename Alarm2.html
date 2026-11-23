@@ -761,26 +761,23 @@
 
         // Filter data
         function filterData() {
-            const search = document.getElementById('searchSite').value.toLowerCase();
+            const search = document.getElementById('searchSite').value.trim();
             const priority = document.getElementById('filterPriority').value;
             const region = document.getElementById('filterRegion').value;
-            
-            filteredData = allData.filter(item => {
-                if (search && !item.siteId.toLowerCase().includes(search)) return false;
-                if (priority && item.priority !== priority) return false;
-                if (region && item.region !== region) return false;
-                return true;
+
+            filteredData = RANData.filterRecords(allData, {
+                exact: { priority, region },
+                search,
+                searchFields: ['siteId']
             });
-            
-            // Show filter alert
+
             const alert = document.getElementById('filterAlert');
             if (search || priority || region) {
-                alert.innerHTML = `🔍 Filtered: ${filteredData.length} issues found`;
+                alert.textContent = `🔍 Filtered: ${filteredData.length.toLocaleString()} alarm records found`;
                 alert.classList.remove('hidden');
             } else {
                 alert.classList.add('hidden');
             }
-            
             updateAll();
         }
 

@@ -186,7 +186,7 @@ function renderTree(containerId, rows, total, status) {
    const sorted=items.slice().sort((a,b)=>b.n-a.n);
    const leaves=sorted.map(it=>{
      const hi=(status==="Open"&&it.cat==="LTOA N3T Sites");
-     return `<div class="tree-leaf ${hi?"highlight":""}"><span class="leaf-label">${it.cat} <span class="muted">(${pct(it.n,total)})</span></span><strong>${it.n.toLocaleString()} records</strong></div>`;
+     return `<div class="tree-leaf ${hi?"highlight":""}"><span class="leaf-label">${RANData.escapeHTML(it.cat)} <span class="muted">(${pct(it.n,total)})</span></span><strong>${it.n.toLocaleString()} records</strong></div>`;
    }).join("");
    return `<div class="tree-branch"><div class="tree-group"><span>${RANData.escapeHTML(site)}</span><span class="count">${count} records</span></div><div class="tree-leaves">${leaves}</div></div>`;
  }).join("");

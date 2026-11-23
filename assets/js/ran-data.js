@@ -96,7 +96,43 @@
     return 'Unknown';
   }
 
+  function filterRecords(records, filters) {
+    const f = filters || {};
+    const exact = f.exact || {};
+    const search = String(f.search || '').trim().toLocaleLowerCase();
+    const searchFields = Array.isArray(f.searchFields) ? f.searchFields : [];
+    return (Array.isArray(records) ? records : []).filter(record => {
+      for (const [field, selected] of Object.entries(exact)) {
+        if (selected !== '' && selected !== null && selected !== undefined && String(record[field] == null ? '' : record[field]) !== String(selected)) return false;
+      }
+      if (search && !searchFields.some(field => String(record[field] == null ? '' : record[field]).toLocaleLowerCase().includes(search))) return false;
+      return true;
+    });
+  }
+
+  function aggregate(records, field, options) {
+    const opts = options || {};
+    const counts = new Map();
+    for (const record of Array.isArray(records) ? records : []) {
+      if (typeof opts.predicate === 'function' && !opts.predicate(record)) continue;
+      const raw = record[field];
+      const key = String(raw == null || String(raw).trim() === '' ? (opts.unknownLabel || 'Unknown') : raw).trim();
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+    return Array.from(counts, ([key, count]) => ({ key, count })).sort((a, b) => b.count - a.count || a.key.localeCompare(b.key));
+  }
+
+  function uniqueCount(records, field, predicate) {
+    const values = new Set();
+    for (const record of Array.isArray(records) ? records : []) {
+      if (typeof predicate === 'function' && !predicate(record)) continue;
+      const value = String(record[field] == null ? '' : record[field]).trim();
+      if (value) values.add(value);
+    }
+    return values.size;
+  }
+
   global.RANData = Object.freeze({
-    parseCSV, fetchText, escapeHTML, csvCell, normalizeStatus, normalizePriority
+    parseCSV, fetchText, escapeHTML, csvCell, normalizeStatus, normalizePriority, filterRecords, aggregate, uniqueCount
   });
 })(window);

@@ -76,7 +76,7 @@ footer{max-width:1600px;margin:auto;padding:0 24px 26px;color:var(--mid);font-si
 <header><div class="head"><div><div class="eyebrow">RAN Operations • Executive Monitoring</div><h1>Blank NAV W41 Dashboard</h1><div class="sub">Site closure progress, issue breakdown, aging exposure and recovery priorities</div></div><div class="badge">W41 • 2026</div></div></header>
 <main>
 <div class="toolbar">
-  <select id="statusFilter"><option value="All">All Status</option><option>Open</option><option>Closed</option></select>
+  <select id="statusFilter"><option value="All">All Status</option><option>Open</option><option>Closed</option><option>Unknown</option></select>
   <select id="siteFilter"><option value="All">All Site Categories</option></select>
   <select id="categoryFilter"><option value="All">All Issue Categories</option></select>
   <input id="searchAll" placeholder="Search category / site category…">
@@ -121,7 +121,7 @@ footer{max-width:1600px;margin:auto;padding:0 24px 26px;color:var(--mid);font-si
     <div class="tree-panel" id="openTree"></div>
   </div>
   <div class="card span-12"><div class="card-title"><div><h2>Site Issue Register</h2><div class="hint">Individual site-issue records from the Data sheet • searchable, filterable and exportable</div></div><span class="pill" id="rowCount">603 rows</span></div>
-    <div class="table-controls"><input id="tableSearch" placeholder="Search Site ID, site name, circle, status, category…"><select id="tableStatus"><option value="All">All Status</option><option>Open</option><option>Closed</option></select><select id="tableSite"><option value="All">All Site Categories</option></select><select id="tableCircle"><option value="All">All Circles</option></select><select id="tableCategory"><option value="All">All Categories</option></select></div>
+    <div class="table-controls"><input id="tableSearch" placeholder="Search Site ID, site name, circle, status, category…"><select id="tableStatus"><option value="All">All Status</option><option>Open</option><option>Closed</option><option>Unknown</option></select><select id="tableSite"><option value="All">All Site Categories</option></select><select id="tableCircle"><option value="All">All Circles</option></select><select id="tableCategory"><option value="All">All Categories</option></select></div>
     <div class="table-wrap"><table id="combinedTable"><thead><tr><th>No.</th><th>Site ID</th><th>Site Name</th><th>Site Category</th><th>Status NMS</th><th>Circle</th><th>Status</th><th class="num">aging_days</th><th>Aging Category</th><th>Category</th></tr></thead><tbody></tbody></table></div>
     <div class="pagination" aria-label="Site register pagination"><span id="pageInfo" class="muted">Page 1 of 13</span><div class="page-buttons"><button type="button" id="prevPage" onclick="changePage(-1)">Previous</button><button type="button" id="nextPage" onclick="changePage(1)">Next</button></div></div>
   </div>

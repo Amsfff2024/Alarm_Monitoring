@@ -204,64 +204,120 @@ fillSelect("tableCircle",siteRecords.map(r=>r.Circle));
 fillSelect("tableCategory",siteRecords.map(r=>r.Category));
 let currentPage = 1;
 const PAGE_SIZE = 50;
-function renderCombined(){
- const q=(document.getElementById("tableSearch").value||"").toLowerCase();
- const st=document.getElementById("tableStatus").value, si=document.getElementById("tableSite").value, ci=document.getElementById("tableCircle").value, ca=document.getElementById("tableCategory").value;
- const cols=["Site ID","Site Name","Site Category","Status NMS","Circle","Status","aging_days","Aging Category","Category"];
- const rows=siteRecords.filter(r=>(st==="All"||String(r.Status??"")===st)&&(si==="All"||String(r["Site Category"]??"")===si)&&(ci==="All"||String(r.Circle??"")===ci)&&(ca==="All"||String(r.Category??"")===ca)&&cols.map(k=>r[k]??"").join(" ").toLowerCase().includes(q));
+// Phase 2 — one canonical filtered population drives every site-issue view.
+const SITE_COLUMNS=["Site ID","Site Name","Site Category","Status NMS","Circle","Status","aging_days","Aging Category","Category"];
+const SITE_FILTER_IDS=["statusFilter","siteFilter","categoryFilter","searchAll","tableSearch","tableStatus","tableSite","tableCircle","tableCategory"];
+function getFilteredSiteRows(){
+ const get=id=>document.getElementById(id)?.value??"";
+ const globalSearch=get("searchAll").trim().toLowerCase();
+ const tableSearch=get("tableSearch").trim().toLowerCase();
+ const search=[globalSearch,tableSearch].filter(Boolean);
+ return RANData.filterRecords(siteRecords,{
+  exact:{
+   Status:get("statusFilter")==="All"? "":get("statusFilter"),
+   "Site Category":get("siteFilter")==="All"?"":get("siteFilter"),
+   Category:get("categoryFilter")==="All"?"":get("categoryFilter")
+  },
+  search,
+  searchFields:SITE_COLUMNS
+ }).filter(r=>
+  (get("tableStatus")==="All"||String(r.Status??"")===get("tableStatus"))&&
+  (get("tableSite")==="All"||String(r["Site Category"]??"")===get("tableSite"))&&
+  (get("tableCircle")==="All"||String(r.Circle??"")===get("tableCircle"))&&
+  (get("tableCategory")==="All"||String(r.Category??"")===get("tableCategory"))
+ );
+}
+function siteAgg(rows,field,predicate=()=>true){return RANData.aggregate(rows,field,{predicate}).map(x=>[x.key,x.count]);}
+function updateSiteChart(index,entries,palette){
+ const c=charts[index];if(!c)return;
+ c.data.labels=entries.map(x=>x[0]);c.data.datasets[0].data=entries.map(x=>x[1]);
+ if(palette)c.data.datasets[0].backgroundColor=entries.map((x,i)=>palette[i]||colors.gray);
+ c.update();
+}
+function updateSiteTrees(rows){
+ const toTree=status=>{const subset=rows.filter(r=>r.Status===status), groups={};
+  subset.forEach(r=>{const site=r["Site Category"]||"Unknown",cat=r.Category||"Unknown";groups[site]??={};groups[site][cat]=(groups[site][cat]||0)+1;});
+  return Object.entries(groups).flatMap(([site,cats])=>Object.entries(cats).map(([cat,n])=>[site,cat,n]));
+ };
+ const closed=rows.filter(r=>r.Status==="Closed").length,open=rows.filter(r=>r.Status==="Open").length;
+ renderTree("closedTree",toTree("Closed"),closed,"Closed");
+ renderTree("openTree",toTree("Open"),open,"Open");
+}
+function refreshUnifiedSiteViews(){
+ const rows=getFilteredSiteRows(),open=rows.filter(r=>r.Status==="Open"),closed=rows.filter(r=>r.Status==="Closed"),unknown=rows.filter(r=>r.Status==="Unknown");
+ const total=rows.length,fmt=n=>n.toLocaleString();
+ document.getElementById("kTotal").textContent=fmt(total);
+ document.getElementById("kClosed").textContent=fmt(closed.length);
+ document.getElementById("kOpen").textContent=fmt(open.length);
+ document.getElementById("kClosedNote").textContent=pct(closed.length,total)+" of filtered records";
+ document.getElementById("kOpenNote").textContent=pct(open.length,total)+" of filtered records";
+ document.getElementById("kTotal").nextElementSibling.textContent=fmt(unknown.length)+" records have Unknown status";
+ document.getElementById("rowCount").textContent=fmt(rows.length)+" filtered rows";
+ const ltoa=open.filter(r=>String(r.Category||"").toLowerCase().includes("ltoa n3t")||String(r["Site Category"]||"").toUpperCase()==="N3T");
+ const aged=open.filter(r=>r.aging_days!==""&&Number(r.aging_days)>30);
+ document.querySelectorAll(".kpi-value")[3].textContent=fmt(ltoa.length);
+ document.querySelectorAll(".kpi-note")[3].textContent=pct(ltoa.length,open.length)+" of filtered open records";
+ document.querySelectorAll(".kpi-value")[4].textContent=fmt(aged.length);
+ document.querySelectorAll(".kpi-note")[4].textContent=pct(aged.length,open.length)+" of filtered open records";
+ updateSiteChart(0,[["Closed",closed.length],["Open",open.length],["Unknown",unknown.length]],[colors.green,colors.red,colors.gray]);
+ updateSiteChart(1,siteAgg(open,"Site Category"),[colors.red,colors.amber,colors.gray]);
+ updateSiteChart(2,siteAgg(open,"Circle"),[colors.red,colors.amber,colors.gray]);
+ updateSiteChart(3,siteAgg(open,"Category").slice(0,10),[colors.red,colors.gray]);
+ const age=[ [">30 days",open.filter(r=>r.aging_days!==""&&Number(r.aging_days)>30).length],
+ ["16–30 days",open.filter(r=>r.aging_days!==""&&Number(r.aging_days)>=16&&Number(r.aging_days)<=30).length],
+ ["≤15 days",open.filter(r=>r.aging_days!==""&&Number(r.aging_days)<=15).length],
+ ["Unknown",open.filter(r=>r.aging_days==="").length] ];
+ updateSiteChart(4,age);
+ const ltoaAge=[[">30 days",ltoa.filter(r=>r.aging_days!==""&&Number(r.aging_days)>30).length],
+ ["16–30 days",ltoa.filter(r=>r.aging_days!==""&&Number(r.aging_days)>=16&&Number(r.aging_days)<=30).length],
+ ["≤15 days",ltoa.filter(r=>r.aging_days!==""&&Number(r.aging_days)<=15).length],
+ ["Unknown",ltoa.filter(r=>r.aging_days==="").length]];
+ updateSiteChart(6,ltoaAge);
+ updateSiteChart(7,siteAgg(ltoa,"Circle"));
+ updateSiteTrees(rows);
+ renderCombined(rows);
+}
+function renderCombined(rows=getFilteredSiteRows()){
  const totalPages=Math.max(1,Math.ceil(rows.length/PAGE_SIZE));
  currentPage=Math.min(Math.max(1,currentPage),totalPages);
  const pageRows=rows.slice((currentPage-1)*PAGE_SIZE,currentPage*PAGE_SIZE);
  const tb=document.querySelector("#combinedTable tbody");tb.innerHTML="";
- pageRows.forEach((r,i)=>{const tr=document.createElement("tr");const values=[(currentPage-1)*PAGE_SIZE+i+1,...cols.map(k=>r[k])];tr.innerHTML=values.map((raw,j)=>{const v=raw===null||raw===undefined?"":String(raw);const safe=v.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");if(j===6)return `<td class="${v==="Open"?"status-open":v==="Closed"?"status-closed":""}">${safe}</td>`;if(j===7)return `<td class="num">${safe}</td>`;return `<td>${safe}</td>`}).join("");tb.appendChild(tr)});
+ pageRows.forEach((r,i)=>{
+  const tr=document.createElement("tr");
+  const values=[(currentPage-1)*PAGE_SIZE+i+1,...SITE_COLUMNS.map(k=>r[k])];
+  tr.innerHTML=values.map((raw,j)=>{
+   const v=raw===null||raw===undefined?"":String(raw);
+   const td=document.createElement("td");td.textContent=v;
+   if(j===6)td.className=v==="Open"?"status-open":v==="Closed"?"status-closed":"";
+   if(j===7)td.classList.add("num");
+   return td.outerHTML;
+  }).join("");
+  tb.appendChild(tr);
+ });
  document.getElementById("rowCount").textContent=`${rows.length.toLocaleString()} filtered rows`;
  document.getElementById("pageInfo").textContent=`Page ${currentPage} of ${totalPages} • Showing ${rows.length?((currentPage-1)*PAGE_SIZE+1):0}–${Math.min(currentPage*PAGE_SIZE,rows.length)} of ${rows.length.toLocaleString()} rows`;
  document.getElementById("prevPage").disabled=currentPage<=1;
  document.getElementById("nextPage").disabled=currentPage>=totalPages;
 }
 function changePage(delta){currentPage+=delta;renderCombined();}
-["tableSearch","tableStatus","tableSite","tableCircle","tableCategory"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{currentPage=1;renderCombined()}));
-["tableSearch","tableStatus","tableSite","tableCircle","tableCategory"].forEach(id=>document.getElementById(id).addEventListener("input",renderCombined));
-renderCombined();
-
-function getDashboardFilteredRows(){
- const st=document.getElementById("statusFilter").value;
- const si=document.getElementById("siteFilter").value;
- const ca=document.getElementById("categoryFilter").value;
- const q=(document.getElementById("searchAll").value||"").toLowerCase();
- return combined.filter(r=>(st==="All"||r.status===st)&&(si==="All"||r.site===si)&&(ca==="All"||r.cat===ca)&&`${r.status} ${r.site} ${r.cat}`.toLowerCase().includes(q));
+function resetFilters(){
+ currentPage=1;
+ SITE_FILTER_IDS.forEach(id=>{const el=document.getElementById(id);if(!el)return;el.value=["statusFilter","siteFilter","categoryFilter","tableStatus","tableSite","tableCircle","tableCategory"].includes(id)?"All":"";});
+ refreshUnifiedSiteViews();
 }
-function refreshDashboardFilters(){
- const rows=getDashboardFilteredRows();
- const closedCount=rows.filter(r=>r.status==="Closed").reduce((a,r)=>a+r.n,0);
- const openCount=rows.filter(r=>r.status==="Open").reduce((a,r)=>a+r.n,0);
- document.getElementById("kTotal").textContent=(closedCount+openCount).toLocaleString();
- document.getElementById("kClosed").textContent=closedCount.toLocaleString();
- document.getElementById("kOpen").textContent=openCount.toLocaleString();
- document.getElementById("kClosedNote").textContent=pct(closedCount,closedCount+openCount)+" of filtered total";
- document.getElementById("kOpenNote").textContent=pct(openCount,closedCount+openCount)+" of filtered total";
- document.getElementById("rowCount").textContent=`${rows.length} rows`;
- // Update the category charts with the same global filter selection.
- const openRows=rows.filter(r=>r.status==="Open");
- const siteAgg={}; openRows.forEach(r=>siteAgg[r.site]=(siteAgg[r.site]||0)+r.n);
- const siteLabels=Object.keys(siteAgg), siteValues=siteLabels.map(k=>siteAgg[k]);
- charts[1].data.labels=siteLabels; charts[1].data.datasets[0].data=siteValues; charts[1].update();
- const catAggFiltered={}; openRows.forEach(r=>catAggFiltered[r.cat]=(catAggFiltered[r.cat]||0)+r.n);
- const catEntries=Object.entries(catAggFiltered).sort((a,b)=>b[1]-a[1]).slice(0,10);
- charts[3].data.labels=catEntries.map(x=>x[0]); charts[3].data.datasets[0].data=catEntries.map(x=>x[1]); charts[3].update();
- renderCombined();
-}
-["statusFilter","siteFilter","categoryFilter","searchAll"].forEach(id=>document.getElementById(id).addEventListener("input",refreshDashboardFilters));
-refreshDashboardFilters();
-
-function resetFilters(){currentPage=1;["statusFilter","siteFilter","categoryFilter","searchAll","tableSearch","tableStatus","tableSite","tableCircle","tableCategory"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=(["statusFilter","siteFilter","categoryFilter","tableStatus","tableSite","tableCategory"].includes(id))?"All":""});renderCombined();refreshDashboardFilters()}
 function downloadCSV(){
- const st=document.getElementById("tableStatus").value,si=document.getElementById("tableSite").value,ci=document.getElementById("tableCircle").value,ca=document.getElementById("tableCategory").value,q=(document.getElementById("tableSearch").value||"").toLowerCase();
- const cols=["Site ID","Site Name","Site Category","Status NMS","Circle","Status","aging_days","Aging Category","Category"];
- const rows=siteRecords.filter(r=>(st==="All"||String(r.Status??"")===st)&&(si==="All"||String(r["Site Category"]??"")===si)&&(ci==="All"||String(r.Circle??"")===ci)&&(ca==="All"||String(r.Category??"")===ca)&&cols.map(k=>r[k]??"").join(" ").toLowerCase().includes(q));
- const csv=[cols,...rows.map(r=>cols.map(k=>r[k]??""))].map(row=>row.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\r\n");
- const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="Blank_NAV_W41_Site_Issue_Register.csv";a.click();URL.revokeObjectURL(url);
+ const rows=getFilteredSiteRows();
+ if(!rows.length){alert("No filtered site records to export.");return;}
+ const csv=[SITE_COLUMNS,...rows.map(r=>SITE_COLUMNS.map(k=>r[k]??""))].map(row=>row.map(RANData.csvCell).join(",")).join("\r\n");
+ const blob=new Blob(["\\uFEFF",csv],{type:"text/csv;charset=utf-8;"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="RAN_Site_Issue_Register_Filtered.csv";a.click();URL.revokeObjectURL(url);
 }
+SITE_FILTER_IDS.forEach(id=>{
+ const el=document.getElementById(id);if(!el)return;
+ el.addEventListener("input",()=>{currentPage=1;refreshUnifiedSiteViews();});
+ el.addEventListener("change",()=>{currentPage=1;refreshUnifiedSiteViews();});
+});
+refreshUnifiedSiteViews();
 
 // Live Google Sheets integration. Publish the target tab as CSV or allow public view access.
 const GOOGLE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSYnt8swNN_7jwiTGQJIdeWwbopMYt52YWdHo4Ts0C2Ir8JLZS2kffe-oO_GbtNoBxBMuw1O62Tl_qL/pub?gid=340698847&single=true&output=csv";

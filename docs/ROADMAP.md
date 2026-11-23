@@ -68,7 +68,7 @@ The product must distinguish alarm events from site issues. A high alarm count i
 
 ### Phase 2 — Unified data and filter engine
 
-**Implementation status (2026-11-23):** Core unified filter and metric wiring is implemented on the feature branch. Static JavaScript syntax checks pass; browser/live-source acceptance tests remain pending.
+**Implementation status (2026-11-23):** Core unified filter and metric wiring is implemented on the feature branch. Static JavaScript syntax checks and the 12-case ingestion/filter smoke suite pass; live Google Sheets and full browser interaction acceptance remain pending.
 
 **Implemented**
 - Shared `RANData.filterRecords`, `aggregate`, and `uniqueCount` helpers.
@@ -83,7 +83,7 @@ The product must distinguish alarm events from site issues. A high alarm count i
 
 **Validation completed**
 - JavaScript syntax checks: no errors in both dashboards, shared helper and smoke-test page.
-- Shared helper tests executed: 10/10 passed.
+- Browser smoke-test page executed in a lightweight DOM harness: 12/12 passed, including shared filter, aggregation and unique-count cases.
 - Browser interaction and live Google Sheets reconciliation are not yet verified.
 
 **Remaining acceptance gates**

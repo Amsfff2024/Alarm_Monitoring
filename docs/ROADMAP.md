@@ -67,12 +67,31 @@ The product must distinguish alarm events from site issues. A high alarm count i
 - Record counts and unique entity counts are independently verified.
 
 ### Phase 2 — Unified data and filter engine
-**Deliverables**
-- Canonical `AlarmRecord` and `SiteIssueRecord` models.
-- Shared filter state across KPI, chart, table, drilldown and export within each module.
-- Explicit metric definitions and denominators.
-- Deduplication rules based only on confirmed source keys; otherwise report source-row counts.
-- Date parsing based on confirmed source format/time zone.
+
+**Implementation status (2026-11-23):** Core unified filter and metric wiring is implemented on the feature branch. Static JavaScript syntax checks pass; browser/live-source acceptance tests remain pending.
+
+**Implemented**
+- Shared `RANData.filterRecords`, `aggregate`, and `uniqueCount` helpers.
+- Site Issue dashboard now uses one filtered population for KPI cards, status/aging/category/circle charts, tree breakdowns, table, pagination and CSV export.
+- Global filters and table filters are combined rather than running independently.
+- Removed duplicate table-filter listeners and routed live refresh through the unified rendering engine.
+- Unknown status is included in the denominator and shown separately; action-description chart is explicitly unavailable because the published source does not contain that field.
+- Alarm dashboard KPI cards, top-site ranking, table, export and site drilldown now follow the active search/priority/region filters.
+- Alarm records, distinct site IDs and distinct ticket IDs are calculated as separate metrics.
+- Added an explicit Unknown/Unmapped priority filter.
+- Added regression cases for combined filters, aggregation and unique counts.
+
+**Validation completed**
+- JavaScript syntax checks: no errors in both dashboards, shared helper and smoke-test page.
+- Shared helper tests executed: 10/10 passed.
+- Browser interaction and live Google Sheets reconciliation are not yet verified.
+
+**Remaining acceptance gates**
+- Verify all filter combinations against a known sample and reconcile KPI counts to filtered table rows.
+- Verify chart totals and tree totals reconcile to the same filtered record population.
+- Verify CSV export row count and filter parity.
+- Confirm whether source rows are unique per site; until confirmed, KPIs are explicitly record counts and unique sites are only reported as a separate distinct count in Alarm2.
+- Confirm date format/time zone from the live alarm feed before introducing date-window metrics.
 
 **Exit criteria**
 - Filtered totals reconcile with filtered table rows.

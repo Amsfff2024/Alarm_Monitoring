@@ -316,8 +316,7 @@ function downloadCSV(){
 }
 SITE_FILTER_IDS.forEach(id=>{
  const el=document.getElementById(id);if(!el)return;
- el.addEventListener("input",()=>{currentPage=1;refreshUnifiedSiteViews();});
- el.addEventListener("change",()=>{currentPage=1;refreshUnifiedSiteViews();});
+ el.addEventListener(["statusFilter","siteFilter","categoryFilter","tableStatus","tableSite","tableCircle","tableCategory"].includes(id)?"change":"input",()=>{currentPage=1;refreshUnifiedSiteViews();});
 });
 refreshUnifiedSiteViews();
 
@@ -379,7 +378,7 @@ function rebuildLiveDashboard(rows){
  const ctree=toTree(closedRows), otree=toTree(openRows);renderTree('closedTree',ctree,closedRows.length,'Closed');renderTree('openTree',otree,openRows.length,'Open');
  // Summary source cards no longer match the live source; hide the action-description summary chart note.
  document.querySelector('#actionChart').closest('.card').querySelector('.hint').textContent='Not available in the published source schema';
- liveSourceActive=true;currentPage=1;renderCombined();refreshDashboardFilters();
+ liveSourceActive=true;currentPage=1;refreshUnifiedSiteViews();
 }
 let liveRefreshInFlight=false, liveLastSuccess=null, liveLastError=null;
 async function loadGoogleSheetData(manual=false){

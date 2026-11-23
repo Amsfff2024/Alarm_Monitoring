@@ -87,9 +87,9 @@ footer{max-width:1600px;margin:auto;padding:0 24px 26px;color:var(--mid);font-si
   <button onclick="window.print()">Print / Save PDF</button>
 </div>
 <section class="kpis">
-  <div class="card"><div class="kpi-label">Total tracked sites</div><div class="kpi-value" id="kTotal">603</div><div class="kpi-note">Grand total from supplied tracker summary</div></div>
-  <div class="card"><div class="kpi-label">Closed sites</div><div class="kpi-value green" id="kClosed">64</div><div class="kpi-note" id="kClosedNote">10.61% of total</div></div>
-  <div class="card"><div class="kpi-label">Open sites</div><div class="kpi-value red" id="kOpen">539</div><div class="kpi-note" id="kOpenNote">89.39% of total</div></div>
+  <div class="card"><div class="kpi-label">Total tracked records</div><div class="kpi-value" id="kTotal">603</div><div class="kpi-note">Grand total from supplied tracker summary</div></div>
+  <div class="card"><div class="kpi-label">Closed records</div><div class="kpi-value green" id="kClosed">64</div><div class="kpi-note" id="kClosedNote">10.61% of total</div></div>
+  <div class="card"><div class="kpi-label">Open records</div><div class="kpi-value red" id="kOpen">539</div><div class="kpi-note" id="kOpenNote">89.39% of total</div></div>
   <div class="card"><div class="kpi-label">Open LTOA N3T</div><div class="kpi-value red">312</div><div class="kpi-note">57.9% of open sites</div></div>
   <div class="card"><div class="kpi-label">Open aging &gt;30 days</div><div class="kpi-value amber">369</div><div class="kpi-note">68.5% of open sites</div></div>
 </section>
@@ -98,14 +98,14 @@ footer{max-width:1600px;margin:auto;padding:0 24px 26px;color:var(--mid);font-si
 <div class="section-label">Circle Charts</div>
 <section class="grid">
   <div class="card span-3"><div class="card-title"><div><h2>Site Status Distribution</h2><div class="hint">Closed vs open • total 603</div></div><span class="pill">Count + %</span></div><div class="chartbox compact"><canvas id="statusChart"></canvas></div></div>
-  <div class="card span-3"><div class="card-title"><div><h2>Open Sites by Aging</h2><div class="hint">Open site aging distribution</div></div></div><div class="chartbox compact"><canvas id="agingChart"></canvas></div></div>
+  <div class="card span-3"><div class="card-title"><div><h2>Open Sites by Aging</h2><div class="hint">Open record aging distribution</div></div></div><div class="chartbox compact"><canvas id="agingChart"></canvas></div></div>
   <div class="card span-3"><div class="card-title"><div><h2>Action Description Coverage</h2><div class="hint">Not included in published source columns</div></div></div><div class="chartbox compact"><canvas id="actionChart"></canvas></div></div>
   <div class="card span-3"><div class="card-title"><div><h2>LTOA N3T Aging Breakdown</h2><div class="hint">312 open LTOA N3T sites</div></div></div><div class="chartbox compact"><canvas id="ltoaAgingChart"></canvas></div></div>
 </section>
 
 <div class="section-label">Bar Charts</div>
 <section class="grid">
-  <div class="card span-3"><div class="card-title"><div><h2>Open Sites by Site Category</h2><div class="hint">Open only • total 539</div></div><span class="pill">Count</span></div><div class="chartbox compact"><canvas id="siteChart"></canvas></div></div>
+  <div class="card span-3"><div class="card-title"><div><h2>Open Sites by Site Category</h2><div class="hint">Open only • record count</div></div><span class="pill">Count</span></div><div class="chartbox compact"><canvas id="siteChart"></canvas></div></div>
   <div class="card span-3"><div class="card-title"><div><h2>Open Sites by Circle</h2><div class="hint">KALISUMAPA = largest contributor</div></div><span class="pill">Open only</span></div><div class="chartbox compact"><canvas id="circleChart"></canvas></div></div>
   <div class="card span-3"><div class="card-title"><div><h2>Open Issue Category Breakdown</h2><div class="hint">Top issue categories</div></div><span class="pill">Count</span></div><div class="chartbox compact"><canvas id="openCategoryChart"></canvas></div></div>
   <div class="card span-3"><div class="card-title"><div><h2>LTOA N3T by Circle</h2><div class="hint">302 of 312 in KALISUMAPA</div></div></div><div class="chartbox compact"><canvas id="ltoaCircleChart"></canvas></div></div>
@@ -114,10 +114,10 @@ footer{max-width:1600px;margin:auto;padding:0 24px 26px;color:var(--mid);font-si
 <div class="section-label">Site Breakdown</div>
 <div class="section-label">Full issue tables</div>
 <section class="grid">
-  <div class="card span-6"><div class="card-title"><div><h2>Closed Sites Breakdown — Left-to-Right Tree</h2><div class="hint">Status → Site Category → Issue Category • Total: 64 sites</div></div><span class="pill">Closed</span></div>
+  <div class="card span-6"><div class="card-title"><div><h2>Closed Sites Breakdown — Left-to-Right Tree</h2><div class="hint">Status → Site Category → Issue Category • 64 records</div></div><span class="pill">Closed</span></div>
     <div class="tree-panel" id="closedTree"></div>
   </div>
-  <div class="card span-6"><div class="card-title"><div><h2>Open Sites Breakdown — Left-to-Right Tree</h2><div class="hint">Status → Site Category → Issue Category • Total: 539 sites</div></div><span class="pill">Open</span></div>
+  <div class="card span-6"><div class="card-title"><div><h2>Open Sites Breakdown — Left-to-Right Tree</h2><div class="hint">Status → Site Category → Issue Category • 539 records</div></div><span class="pill">Open</span></div>
     <div class="tree-panel" id="openTree"></div>
   </div>
   <div class="card span-12"><div class="card-title"><div><h2>Site Issue Register</h2><div class="hint">Individual site records from the Data sheet • searchable, filterable and exportable</div></div><span class="pill" id="rowCount">603 rows</span></div>
@@ -186,11 +186,11 @@ function renderTree(containerId, rows, total, status) {
    const sorted=items.slice().sort((a,b)=>b.n-a.n);
    const leaves=sorted.map(it=>{
      const hi=(status==="Open"&&it.cat==="LTOA N3T Sites");
-     return `<div class="tree-leaf ${hi?"highlight":""}"><span class="leaf-label">${it.cat} <span class="muted">(${pct(it.n,total)})</span></span><strong>${it.n.toLocaleString()} sites</strong></div>`;
+     return `<div class="tree-leaf ${hi?"highlight":""}"><span class="leaf-label">${it.cat} <span class="muted">(${pct(it.n,total)})</span></span><strong>${it.n.toLocaleString()} records</strong></div>`;
    }).join("");
-   return `<div class="tree-branch"><div class="tree-group"><span>${site}</span><span class="count">${count} sites</span></div><div class="tree-leaves">${leaves}</div></div>`;
+   return `<div class="tree-branch"><div class="tree-group"><span>${site}</span><span class="count">${count} records</span></div><div class="tree-leaves">${leaves}</div></div>`;
  }).join("");
- host.innerHTML=`<div class="tree"><div class="tree-root-col"><div class="tree-root ${rootClass}">${status.toUpperCase()}<br><span style="font-size:23px">${total}</span><br><span style="font-size:10px;font-weight:500">sites</span></div></div><div class="tree-branches">${branchesHtml}</div></div><div class="tree-legend"><span><i class="tree-dot" style="background:${status==="Closed"?"#15803d":"#dc2626"}"></i>${status} site count</span><span>Site category → issue category • count shown at each level</span></div>`;
+ host.innerHTML=`<div class="tree"><div class="tree-root-col"><div class="tree-root ${rootClass}">${status.toUpperCase()}<br><span style="font-size:23px">${total}</span><br><span style="font-size:10px;font-weight:500">records</span></div></div><div class="tree-branches">${branchesHtml}</div></div><div class="tree-legend"><span><i class="tree-dot" style="background:${status==="Closed"?"#15803d":"#dc2626"}"></i>${status} record count</span><span>Site category → issue category • count shown at each level</span></div>`;
 }
 renderTree("closedTree",closed,64,"Closed");
 renderTree("openTree",open,539,"Open");
@@ -274,6 +274,8 @@ function refreshUnifiedSiteViews(){
  ["Unknown",ltoa.filter(r=>r.aging_days==="").length]];
  updateSiteChart(6,ltoaAge);
  updateSiteChart(7,siteAgg(ltoa,"Circle"));
+ // Action-description is absent from the published schema; show an explicit unavailable state, never a fabricated count.
+ updateSiteChart(5,[["Not available in source",0]]);
  updateSiteTrees(rows);
  renderCombined(rows);
 }
@@ -376,7 +378,7 @@ function rebuildLiveDashboard(rows){
  const toTree=(arr)=>{const a={};arr.forEach(r=>{const sc=r['Site Category']||'Unknown',cat=r.Category||'Unknown';a[sc]??={};a[sc][cat]=(a[sc][cat]||0)+1;});return Object.entries(a).flatMap(([sc,cs])=>Object.entries(cs).map(([cat,n])=>[sc,cat,n]));};
  const ctree=toTree(closedRows), otree=toTree(openRows);renderTree('closedTree',ctree,closedRows.length,'Closed');renderTree('openTree',otree,openRows.length,'Open');
  // Summary source cards no longer match the live source; hide the action-description summary chart note.
- document.querySelector('#actionChart').closest('.card').querySelector('.hint').textContent='Not included in published source columns';
+ document.querySelector('#actionChart').closest('.card').querySelector('.hint').textContent='Not available in the published source schema';
  liveSourceActive=true;currentPage=1;renderCombined();refreshDashboardFilters();
 }
 let liveRefreshInFlight=false, liveLastSuccess=null, liveLastError=null;

@@ -778,6 +778,8 @@
             } else {
                 alert.classList.add('hidden');
             }
+            // A previously opened site drilldown must not remain visible after its filter population changes.
+            if (!document.getElementById('siteResultContainer').classList.contains('hidden')) closeSiteResult();
             updateAll();
         }
 

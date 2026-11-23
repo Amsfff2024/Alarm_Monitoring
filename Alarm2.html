@@ -452,6 +452,7 @@
                     <option value="P2">P2</option>
                     <option value="P3">P3</option>
                     <option value="P4">P4</option>
+                    <option value="Unknown">Unknown / Unmapped</option>
                 </select>
             </div>
             <div class="filter-item">
@@ -802,7 +803,7 @@
             }
             
             // Filter data untuk site tersebut
-            const siteData = allData.filter(item => 
+            const siteData = filteredData.filter(item =>
                 item.siteId.toLowerCase().includes(siteId.toLowerCase())
             );
             
@@ -925,13 +926,13 @@
         }
 
         function updateKPIs() {
-            const uniqueSites = new Set(allData.map(d => d.siteId)).size;
-            const uniqueTickets = new Set(allData.filter(d => d.hasTicket).map(d => d.ticketId)).size;
-            
-            document.getElementById('totalAlarm').textContent = allData.length;
-            document.getElementById('uniqueSites').textContent = uniqueSites;
-            document.getElementById('totalTickets').textContent = uniqueTickets;
-            document.getElementById('totalRecords').textContent = allData.length;
+            const uniqueSites = RANData.uniqueCount(filteredData, 'siteId');
+            const uniqueTickets = RANData.uniqueCount(filteredData, 'ticketId', item => item.hasTicket);
+            // Alarm records, unique sites and unique tickets are separate metrics.
+            document.getElementById('totalAlarm').textContent = filteredData.length.toLocaleString();
+            document.getElementById('uniqueSites').textContent = uniqueSites.toLocaleString();
+            document.getElementById('totalTickets').textContent = uniqueTickets.toLocaleString();
+            document.getElementById('totalRecords').textContent = filteredData.length.toLocaleString();
         }
 
         function updateTopSites() {
@@ -1001,6 +1002,10 @@
                 let bVal = b[currentSort.column];
                 
                 if (currentSort.column === 'aging') {
+                    if (aVal === null || bVal === null) {
+                        if (aVal === null && bVal === null) return 0;
+                        return aVal === null ? 1 : -1;
+                    }
                     return currentSort.direction === 'asc' ? aVal - bVal : bVal - aVal;
                 }
                 

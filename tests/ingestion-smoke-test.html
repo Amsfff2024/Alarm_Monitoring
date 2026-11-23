@@ -25,6 +25,10 @@
   test('Severity keeps unknown values unknown',()=>equal(['Critical','Major','Minor','Warning','N/A'].map(RANData.normalizePriority),['P1','P2','P3','P4','Unknown']));
   test('HTML escaping protects markup',()=>equal(RANData.escapeHTML('<img src=x onerror="x">'),'&lt;img src=x onerror=&quot;x&quot;&gt;'));
   test('CSV export escapes quotes and commas',()=>equal(RANData.csvCell('a,"b"'),'"a,""b"""'));
+  test('Filter engine applies exact dimensions and all search terms',()=>equal(RANData.filterRecords([{status:'Open',site:'A1',circle:'Java'},{status:'Closed',site:'B1',circle:'Java'}],{exact:{status:'Open'},search:['a1','java'],searchFields:['site','circle']}).length,1));
+  test('Filter engine leaves data unchanged for empty filters',()=>equal(RANData.filterRecords([{status:'Open'},{status:'Closed'}],{}).length,2));
+  test('Aggregation counts categories without conflating records',()=>equal(RANData.aggregate([{circle:'Java'},{circle:'Java'},{circle:'Sumatera'}],'circle').map(x=>[x.key,x.count]),[['Java',2],['Sumatera',1]]));
+  test('Unique count is distinct from record count',()=>equal(RANData.uniqueCount([{site:'A'},{site:'A'},{site:'B'}],'site'),2));
   const list=document.getElementById('results');
   results.forEach(r=>{const li=document.createElement('li');li.className=r.ok?'pass':'fail';li.textContent=(r.ok?'PASS — ':'FAIL — ')+r.name+(r.error?' ('+r.error+')':'');list.appendChild(li);});
   const passed=results.filter(r=>r.ok).length;

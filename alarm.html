@@ -93,7 +93,7 @@ footer{max-width:1600px;margin:auto;padding:0 24px 26px;color:var(--mid);font-si
   <div class="card"><div class="kpi-label">Open LTOA N3T</div><div class="kpi-value red">312</div><div class="kpi-note">57.9% of open sites</div></div>
   <div class="card"><div class="kpi-label">Open aging &gt;30 days</div><div class="kpi-value amber">369</div><div class="kpi-note">68.5% of open sites</div></div>
 </section>
-<div class="callout"><b>Executive message:</b> W41 closed 64 of 603 tracked sites, while 539 remain open. Open backlog is concentrated in LTOA N3T (312 sites) and KALISUMAPA (362 sites); 369 open sites are aged over 30 days. Prioritize aged LTOA N3T cases and strengthen site-level action accountability.</div>
+<div class="callout" id="executiveMessage">Loading filtered operational summary…</div>
 
 <div class="section-label">Circle Charts</div>
 <section class="grid">
@@ -253,6 +253,10 @@ function refreshUnifiedSiteViews(){
  document.getElementById("kOpenNote").textContent=pct(open.length,total)+" of filtered records";
  document.getElementById("kTotal").nextElementSibling.textContent=fmt(unknown.length)+" records have Unknown status";
  document.getElementById("rowCount").textContent=fmt(rows.length)+" filtered rows";
+ const topCircle=siteAgg(open,"Circle")[0],topCategory=siteAgg(open,"Category")[0];
+ document.getElementById("executiveMessage").textContent=total
+  ? `Filtered population: ${fmt(total)} records — ${fmt(closed.length)} closed, ${fmt(open.length)} open and ${fmt(unknown.length)} with unknown status. ${topCategory?"Largest open issue category: "+topCategory[0]+" ("+fmt(topCategory[1])+" records). ":""}${topCircle?"Largest open circle: "+topCircle[0]+" ("+fmt(topCircle[1])+" records).":""}`
+  : "No records match the selected filters. Clear or adjust the filters to view the operational summary.";
  const ltoa=open.filter(r=>String(r.Category||"").toLowerCase().includes("ltoa n3t")||String(r["Site Category"]||"").toUpperCase()==="N3T");
  const aged=open.filter(r=>r.aging_days!==""&&Number(r.aging_days)>30);
  document.querySelectorAll(".kpi-value")[3].textContent=fmt(ltoa.length);
@@ -274,6 +278,13 @@ function refreshUnifiedSiteViews(){
  ["Unknown",ltoa.filter(r=>r.aging_days==="").length]];
  updateSiteChart(6,ltoaAge);
  updateSiteChart(7,siteAgg(ltoa,"Circle"));
+ document.getElementById("statusChart").closest(".card").querySelector(".hint").textContent="Closed vs open • "+fmt(total)+" records";
+ document.getElementById("agingChart").closest(".card").querySelector(".hint").textContent="Open record aging • "+fmt(open.length)+" records";
+ document.getElementById("ltoaAgingChart").closest(".card").querySelector(".hint").textContent="Open LTOA N3T • "+fmt(ltoa.length)+" records";
+ document.getElementById("siteChart").closest(".card").querySelector(".hint").textContent="Open only • "+fmt(open.length)+" records";
+ document.getElementById("circleChart").closest(".card").querySelector(".hint").textContent=topCircle?"Largest: "+topCircle[0]:"No open records";
+ document.getElementById("openCategoryChart").closest(".card").querySelector(".hint").textContent="Open issue categories • "+fmt(open.length)+" records";
+ document.getElementById("ltoaCircleChart").closest(".card").querySelector(".hint").textContent="LTOA N3T • "+fmt(ltoa.length)+" records";
  // Action-description is absent from the published schema; show an explicit unavailable state, never a fabricated count.
  updateSiteChart(5,[["Not available in source",0]]);
  updateSiteTrees(rows);
